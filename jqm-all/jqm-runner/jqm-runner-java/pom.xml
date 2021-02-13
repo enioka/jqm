@@ -73,7 +73,7 @@
                 <configuration>
                     <bnd><![CDATA[
 Import-Package: \
- !org.jboss.shrinkwrap.*, !org.codehaus.*, javax.xml.stream, javax.xml.xpath, javax.xml.parsers, * \
+ !org.jboss.shrinkwrap.*, !org.codehaus.*, javax.xml.stream;version="[0.0,1)", javax.xml.xpath;version="[0.0,1)", javax.xml.parsers;version="[0.0,1)", * \
         ]]>
                     </bnd>
                 </configuration>
