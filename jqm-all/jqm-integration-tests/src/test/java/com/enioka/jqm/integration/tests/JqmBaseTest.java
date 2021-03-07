@@ -237,29 +237,6 @@ public class JqmBaseTest
                 systemProperty("org.osgi.service.http.port").value("-1"),
                 systemProperty("org.apache.aries.jax.rs.whiteboard.default.enabled").value("false"),
 
-                // Jersey and other webapp dependencies
-                mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject(),
-
-                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-api").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.hk2").artifactId("osgi-resource-locator").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-locator").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-utils").versionAsInProject(),
-
-                mavenBundle().groupId("org.glassfish.hk2.external").artifactId("jakarta.inject").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.hk2.external").artifactId("aopalliance-repackaged").versionAsInProject(),
-
-                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-common").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-server").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.containers").artifactId("jersey-container-servlet-core").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-client").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.inject").artifactId("jersey-hk2").versionAsInProject(),
-
-                mavenBundle().groupId("org.glassfish.jersey.media").artifactId("jersey-media-jaxb").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.media").artifactId("jersey-media-moxy").versionAsInProject(),
-                mavenBundle().groupId("org.eclipse.persistence").artifactId("org.eclipse.persistence.moxy").versionAsInProject(),
-                mavenBundle().groupId("org.eclipse.persistence").artifactId("org.eclipse.persistence.core").versionAsInProject(),
-                mavenBundle().groupId("org.glassfish.jersey.ext").artifactId("jersey-entity-filtering").versionAsInProject(),
-
                 // Web security
                 mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
                 mavenBundle("org.apache.shiro", "shiro-web").versionAsInProject(),

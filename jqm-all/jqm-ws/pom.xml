@@ -266,35 +266,11 @@
             <version>3.1.0</version>
             <scope>provided</scope>
         </dependency>
-
-        <!-- Jersey 2.x JAX-RS implementation, running inside a servlet, with a
-			JSON mapper, with a specific DI lib -->
         <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
-            <version>${jersey-version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-moxy</artifactId>
-            <version>${jersey-version}</version>
-            <exclusions>
-                <!-- These API are actually not needed as jersey-container-servlet provides the implementation which also contains the API... This would create warnings on Jetty startup. -->
-                <!-- Note they are only provided on Java 11+ by Jersey -->
-                <exclusion>
-                    <groupId>jakarta.activation</groupId>
-                    <artifactId>jakarta.activation-api</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>jakarta.json</groupId>
-                    <artifactId>jakarta.json-api</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jersey.inject</groupId>
-            <artifactId>jersey-hk2</artifactId>
-            <version>${jersey-version}</version>
+            <groupId>org.apache.aries.spec</groupId>
+            <artifactId>org.apache.aries.javax.jax.rs-api</artifactId>
+            <version>1.0.4</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Security -->

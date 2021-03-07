@@ -15,109 +15,54 @@
  */
 package com.enioka.jqm.ws.plumbing;
 
-import javax.servlet.ServletContext;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Context;
+import java.util.HashSet;
+import java.util.Set;
 
-import org.eclipse.persistence.jaxb.MarshallerProperties;
-import org.eclipse.persistence.jaxb.UnmarshallerProperties;
-import org.glassfish.jersey.server.ResourceConfig;
+import javax.ws.rs.ApplicationPath;
+import javax.ws.rs.core.Application;
+
+import com.enioka.jqm.ws.api.ServiceAdmin;
+import com.enioka.jqm.ws.api.ServiceClient;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.enioka.jqm.jdbc.DbConn;
-import com.enioka.jqm.jdbc.NoResultException;
-import com.enioka.jqm.model.GlobalParameter;
-import com.enioka.jqm.model.Node;
-import com.enioka.jqm.ws.api.Helpers;
-import com.enioka.jqm.ws.api.ServiceAdmin;
-import com.enioka.jqm.ws.api.ServiceClient;
-import com.enioka.jqm.ws.api.ServiceSimple;
-
+/**
+ * A JAX-RS application (not used in OSGi containers - for testing purposes) registering all JQM JAX-RS resources.
+ */
 @ApplicationPath("/ws/*")
-public class JqmRestApp extends ResourceConfig
+public class JqmRestApp extends Application
 {
     static Logger log = LoggerFactory.getLogger(JqmRestApp.class);
 
-    public JqmRestApp(@Context ServletContext context)
+    @Override
+    public Set<Class<?>> getClasses()
     {
-        log.debug("Starting REST WS app");
-
-        // These two properties ensure lists are properly named in JSON objects
-        this.property(MarshallerProperties.JSON_WRAPPER_AS_ARRAY_NAME, true);
-        this.property(UnmarshallerProperties.JSON_WRAPPER_AS_ARRAY_NAME, true);
-        this.property("jersey.config.server.wadl.disableWadl", "true");
-
-        // Determine which of the three APIs should be loaded
-        boolean loadApiSimple;
-        boolean loadApiClient;
-        boolean loadApiAdmin;
-
-        try (DbConn cnx = Helpers.getDbSession())
-        {
-            if (context.getInitParameter("jqmnodeid") != null)
-            {
-                // The application is running hosted by a JQM node.
-                Node n = null;
-
-                try
-                {
-                    n = Node.select_single(cnx, "node_select_by_id", Integer.parseInt(context.getInitParameter("jqmnodeid")));
-                }
-                catch (NoResultException e)
-                {
-                    throw new RuntimeException("invalid configuration: no node of ID " + context.getInitParameter("jqmnodeid"));
-                }
-                loadApiSimple = !Boolean.parseBoolean(GlobalParameter.getParameter(cnx, "disableWsApiSimple", "false"));
-                loadApiClient = !Boolean.parseBoolean(GlobalParameter.getParameter(cnx, "disableWsApiClient", "false"));
-                loadApiAdmin = !Boolean.parseBoolean(GlobalParameter.getParameter(cnx, "disableWsApiAdmin", "false"));
-
-                loadApiAdmin = loadApiAdmin && (n.getLoadApiAdmin() == null ? false : n.getLoadApiAdmin());
-                loadApiClient = loadApiClient && (n.getLoadApiClient() == null ? false : n.getLoadApiClient());
-                loadApiSimple = loadApiSimple && (n.getLoapApiSimple() == null ? true : n.getLoapApiSimple());
-            }
-            else
-            {
-                // The application is hosted by some other server (Tomcat, JBoss... but not a
-                // JQM node)
-
-                // Never load the simple API when not running on JQM's own server. This API
-                // relies on files that are local to the JQM
-                // server.
-                loadApiSimple = false;
-                // Always load the two others
-                loadApiAdmin = true;
-                loadApiClient = true;
-            }
-        }
+        HashSet<Class<?>> res = new HashSet<>();
 
         // Load the APIs
-        if (loadApiAdmin)
-        {
-            log.debug("\tRegistering admin service");
-            this.register(ServiceAdmin.class);
-        }
-        if (loadApiClient)
-        {
-            log.debug("\tRegistering client service");
-            this.register(ServiceClient.class);
-        }
-        if (loadApiSimple)
-        {
-            log.debug("\tRegistering simple service");
-            this.register(ServiceSimple.class);
-        }
+        log.debug("\tRegistering admin service");
+        res.add(ServiceAdmin.class);
+
+        log.debug("\tRegistering client service");
+        res.add(ServiceClient.class);
 
         // Load the exception mappers
-        this.register(ErrorHandler.class);
-        this.register(JqmExceptionMapper.class);
-        this.register(JqmInternalExceptionMapper.class);
+        res.add(ErrorHandler.class);
+        res.add(JqmExceptionMapper.class);
+        res.add(JqmInternalExceptionMapper.class);
 
         // Logger
-        this.register(ExceptionLogger.class);
+        res.add(ExceptionLogger.class);
 
         // Load the cache annotation helper
-        this.register(HttpCacheImpl.class);
+        res.add(HttpCacheImpl.class);
+
+        return res;
     }
 
+    public JqmRestApp()
+    {
+        log.debug("Starting REST WS app");
+    }
 }

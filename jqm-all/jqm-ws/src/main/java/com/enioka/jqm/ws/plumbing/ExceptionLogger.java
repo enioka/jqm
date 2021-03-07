@@ -1,37 +1,30 @@
 package com.enioka.jqm.ws.plumbing;
 
-import org.glassfish.jersey.server.monitoring.ApplicationEvent;
-import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
-import org.glassfish.jersey.server.monitoring.RequestEvent;
-import org.glassfish.jersey.server.monitoring.RequestEvent.Type;
-import org.glassfish.jersey.server.monitoring.RequestEventListener;
+import java.io.IOException;
+
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerResponseContext;
+import javax.ws.rs.container.ContainerResponseFilter;
+import javax.ws.rs.core.Response.Status.Family;
+import javax.ws.rs.ext.Provider;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * A simple JAX-RS event listener which simply logs every exception occurring during a JAX-RS call.
  */
-public class ExceptionLogger implements ApplicationEventListener, RequestEventListener
+@Provider
+public class ExceptionLogger implements ContainerResponseFilter
 {
     private static final Logger log = LoggerFactory.getLogger("RestClientException");
 
     @Override
-    public void onEvent(final ApplicationEvent applicationEvent)
+    public void filter(ContainerRequestContext requestContext, ContainerResponseContext responseContext) throws IOException
     {
-    }
-
-    @Override
-    public RequestEventListener onRequest(final RequestEvent requestEvent)
-    {
-        return this;
-    }
-
-    @Override
-    public void onEvent(RequestEvent paramRequestEvent)
-    {
-        if (paramRequestEvent.getType() == Type.ON_EXCEPTION)
+        if (responseContext.getStatusInfo().getFamily() != Family.SUCCESSFUL)
         {
-            log.info("a REST call failed with an exception", paramRequestEvent.getException());
+            log.info("a REST call failed " + responseContext.getStatusInfo().getReasonPhrase());
         }
     }
 }
