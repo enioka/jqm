@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.webui.shiro;
+package com.enioka.jqm.ws.plumbing.shiro;
 
 import java.security.cert.X509Certificate;
 
@@ -22,32 +22,25 @@ import javax.servlet.ServletResponse;
 
 import org.apache.shiro.authc.AuthenticationToken;
 
-public class BasicHttpAuthenticationFilter extends org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter
-{
+public class BasicHttpAuthenticationFilter extends org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter {
     @Override
-    protected boolean isLoginAttempt(ServletRequest request, ServletResponse response)
-    {
-        final X509Certificate[] clientCertificateChain = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
-        if (clientCertificateChain != null && clientCertificateChain.length > 0)
-        {
+    protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
+        final X509Certificate[] clientCertificateChain = (X509Certificate[]) request
+                .getAttribute("javax.servlet.request.X509Certificate");
+        if (clientCertificateChain != null && clientCertificateChain.length > 0) {
             return true;
-        }
-        else
-        {
+        } else {
             return super.isLoginAttempt(request, response);
         }
     }
 
     @Override
-    protected AuthenticationToken createToken(ServletRequest request, ServletResponse response)
-    {
-        final X509Certificate[] clientCertificateChain = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
-        if (clientCertificateChain != null && clientCertificateChain.length > 0)
-        {
+    protected AuthenticationToken createToken(ServletRequest request, ServletResponse response) {
+        final X509Certificate[] clientCertificateChain = (X509Certificate[]) request
+                .getAttribute("javax.servlet.request.X509Certificate");
+        if (clientCertificateChain != null && clientCertificateChain.length > 0) {
             return new CertificateToken(clientCertificateChain[0]);
-        }
-        else
-        {
+        } else {
             return super.createToken(request, response);
         }
     }

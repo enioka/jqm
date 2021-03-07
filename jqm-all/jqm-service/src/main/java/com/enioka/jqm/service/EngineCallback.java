@@ -4,7 +4,7 @@ import java.util.Calendar;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.LoggerFactory;
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.core.ConsoleAppender;
@@ -27,6 +27,12 @@ public class EngineCallback implements JqmEngineHandler
     private String nodePrms = null;
     private Calendar latestJettyRestart = Calendar.getInstance();
     private boolean oneLogPerLaunch = false;
+    private ConfigurationAdmin adminService;
+
+    public EngineCallback(ConfigurationAdmin adminService)
+    {
+        this.adminService = adminService;
+    }
 
     @Override
     public void onConfigurationChanged(Node node)
@@ -52,7 +58,7 @@ public class EngineCallback implements JqmEngineHandler
             int i = cnx.runSelectSingle("globalprm_select_count_modified_jetty", Integer.class, latestJettyRestart);
             if (i > 0 || !np.equals(nodePrms))
             {
-                this.server.start(node, cnx);
+                this.server.start(node, cnx, adminService);
                 latestJettyRestart = bflkpm;
                 nodePrms = np;
             }
@@ -68,25 +74,18 @@ public class EngineCallback implements JqmEngineHandler
         CommonService.setLogLevel(node.getRootLogLevel());
         this.logLevel = node.getRootLogLevel();
 
-        /* TODO
-        // Log multicasting (& log4j stdout redirect)
-        String gp1 = GlobalParameter.getParameter(cnx, "logFilePerLaunch", "true");
-        if ("true".equals(gp1) || "both".equals(gp1))
-        {
-            oneLogPerLaunch = true;
-            Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-            RollingFileAppender a = (RollingFileAppender) root.getAppender("rollingfile");
-            MultiplexPrintStream s = new MultiplexPrintStream(System.out, FilenameUtils.getFullPath(a.getFile()), "both".equals(gp1));
-            System.setOut(s);
-            ((ConsoleAppender) root.getAppender("consoleAppender")).setTarget("System.out");
-            s = new MultiplexPrintStream(System.err, FilenameUtils.getFullPath(a.getFile()), "both".equals(gp1));
-            System.setErr(s);
-        }
-        */
+        /*
+         * TODO // Log multicasting (& log4j stdout redirect) String gp1 = GlobalParameter.getParameter(cnx, "logFilePerLaunch", "true"); if
+         * ("true".equals(gp1) || "both".equals(gp1)) { oneLogPerLaunch = true; Logger root = (Logger)
+         * LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME); RollingFileAppender a = (RollingFileAppender) root.getAppender("rollingfile");
+         * MultiplexPrintStream s = new MultiplexPrintStream(System.out, FilenameUtils.getFullPath(a.getFile()), "both".equals(gp1));
+         * System.setOut(s); ((ConsoleAppender) root.getAppender("consoleAppender")).setTarget("System.out"); s = new
+         * MultiplexPrintStream(System.err, FilenameUtils.getFullPath(a.getFile()), "both".equals(gp1)); System.setErr(s); }
+         */
 
         // Jetty
         this.server = new JettyServer();
-        this.server.start(node, cnx);
+        this.server.start(node, cnx, adminService);
 
         // Deployment scanner
         String gp2 = GlobalParameter.getParameter(cnx, "directoryScannerRoot", "");
@@ -102,7 +101,7 @@ public class EngineCallback implements JqmEngineHandler
     @Override
     public void onNodeStopped()
     {
-        this.server.stop();
+        this.server.stop(adminService);
         if (this.scanner != null)
         {
             this.scanner.stop();

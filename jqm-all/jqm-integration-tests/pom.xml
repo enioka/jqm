@@ -300,6 +300,12 @@
             <artifactId>jqm-service</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.enioka.jqm</groupId>
+            <artifactId>jqm-ws</artifactId>
+            <version>${project.version}</version>
+            <classifier>classes</classifier>
+        </dependency>
 
         <!-- Tests helpers -->
         <dependency>
@@ -360,6 +366,18 @@
             <artifactId>org.apache.felix.framework</artifactId>
             <version>${felix.version}</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.aries.jax.rs</groupId>
+            <artifactId>org.apache.aries.jax.rs.whiteboard</artifactId>
+            <version>1.0.10</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.servicemix.specs</groupId>
+            <artifactId>org.apache.servicemix.specs.jaxb-api-2.2</artifactId>
+            <version>2.9.0</version>
         </dependency>
 
     </dependencies>

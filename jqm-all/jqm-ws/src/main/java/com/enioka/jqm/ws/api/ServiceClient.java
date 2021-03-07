@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.api;
 
 import java.io.InputStream;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
@@ -42,20 +43,32 @@ import com.enioka.jqm.api.client.core.Queue;
 import com.enioka.jqm.api.client.core.QueueStatus;
 import com.enioka.jqm.api.client.core.SelfDestructFileStream;
 import com.enioka.jqm.api.client.core.State;
+import com.enioka.jqm.ws.plumbing.HttpCache;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.jaxrs.whiteboard.propertytypes.JaxrsResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The main web service class. Interface {@link JqmClient} is implemented, but it is not compulsory at all. (done for completion sake & and
- * ease of update). Not all methods are exposed - some things are better left to the caller.
+ * The main web service class for doing operations on JobInstances.
  */
+
+@Component(service = ServiceClient.class, configurationPolicy = ConfigurationPolicy.REQUIRE, scope = ServiceScope.SINGLETON)
+@JaxrsResource
 @Path("/client")
-public class ServiceClient implements JqmClient
+public class ServiceClient
 {
     static Logger log = LoggerFactory.getLogger(ServiceClient.class);
 
-    private @Context HttpServletResponse res;
+    @Activate
+    public void onServiceActivation(Map<String, Object> properties)
+    {
+        log.info("\tStarting ServiceClient");
+    }
 
     // Not directly mapped: returning an integer would be weird. See enqueue_object.
     public int enqueue(JobRequest jd)
@@ -75,13 +88,12 @@ public class ServiceClient implements JqmClient
     }
 
     // Not exposed. Client side work.
-    @Override
+
     public int enqueue(String applicationName, String userName)
     {
         throw new NotSupportedException();
     }
 
-    @Override
     @Path("ji/{id}")
     @POST
     public int enqueueFromHistory(@PathParam("id") int jobIdToCopy)
@@ -89,7 +101,6 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().enqueueFromHistory(jobIdToCopy);
     }
 
-    @Override
     @Path("ji/cancelled/{jobId}")
     @POST
     public void cancelJob(@PathParam("jobId") int jobId)
@@ -97,7 +108,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().cancelJob(jobId);
     }
 
-    @Override
     @Path("ji/waiting/{jobId}")
     @DELETE
     public void deleteJob(@PathParam("jobId") int jobId)
@@ -105,7 +115,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().deleteJob(jobId);
     }
 
-    @Override
     @Path("ji/killed/{jobId}")
     @POST
     public void killJob(@PathParam("jobId") int jobId)
@@ -113,7 +122,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().killJob(jobId);
     }
 
-    @Override
     @Path("schedule/{scheduleId}")
     @DELETE
     public void removeRecurrence(@PathParam("scheduleId") int scheduleId)
@@ -121,7 +129,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().removeRecurrence(scheduleId);
     }
 
-    @Override
     @Path("ji/paused/{jobId}")
     @POST
     public void pauseQueuedJob(@PathParam("jobId") int jobId)
@@ -129,7 +136,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().pauseQueuedJob(jobId);
     }
 
-    @Override
     @Path("ji/paused/{jobId}")
     @DELETE
     public void resumeQueuedJob(@PathParam("jobId") int jobId)
@@ -142,7 +148,6 @@ public class ServiceClient implements JqmClient
         resumeQueuedJob(jobId);
     }
 
-    @Override
     @Path("ji/running/paused/{jobId}")
     @POST
     public void pauseRunningJob(@PathParam("jobId") int jobId)
@@ -150,7 +155,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().pauseRunningJob(jobId);
     }
 
-    @Override
     @Path("ji/running/paused/{jobId}")
     @DELETE
     public void resumeRunningJob(@PathParam("jobId") int jobId)
@@ -173,7 +177,6 @@ public class ServiceClient implements JqmClient
         return getJob(i);
     }
 
-    @Override
     @Path("q/{queueId: [0-9]+}/{jobId: [0-9]+}")
     @POST
     public void setJobQueue(@PathParam("jobId") int jobId, @PathParam("queueId") int queueId)
@@ -182,13 +185,12 @@ public class ServiceClient implements JqmClient
     }
 
     // No need to expose. Client side work.
-    @Override
+
     public void setJobQueue(int jobId, Queue queue)
     {
         JqmClientFactory.getClient().setJobQueue(jobId, queue);
     }
 
-    @Override
     @POST
     @Path("ji/{jobId}/position/{newPosition}")
     public void setJobQueuePosition(@PathParam("jobId") int jobId, @PathParam("newPosition") int newPosition)
@@ -196,7 +198,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setJobQueuePosition(jobId, newPosition);
     }
 
-    @Override
     @POST
     @Path("ji/{jobId}/priority/{priority}")
     public void setJobPriority(@PathParam("jobId") int jobId, @PathParam("priority") int priority)
@@ -204,7 +205,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setJobPriority(jobId, priority);
     }
 
-    @Override
     public void setJobRunAfter(@PathParam("jobId") int jobId, @PathParam("whenToRun") Calendar whenToRun)
     {
         JqmClientFactory.getClient().setJobRunAfter(jobId, whenToRun);
@@ -219,7 +219,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setJobRunAfter(jobId, c);
     }
 
-    @Override
     @POST
     @Path("schedule/{scheduleId}/queue/{queueId}")
     public void setScheduleQueue(@PathParam("scheduleId") int scheduleId, @PathParam("queueId") int queueId)
@@ -227,7 +226,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setScheduleQueue(scheduleId, queueId);
     }
 
-    @Override
     @POST
     @Path("schedule/{scheduleId}/cron/{cronExpression}")
     public void setScheduleRecurrence(@PathParam("scheduleId") int scheduleId, @PathParam("cronExpression") String cronExpression)
@@ -235,7 +233,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setScheduleRecurrence(scheduleId, cronExpression);
     }
 
-    @Override
     @POST
     @Path("schedule/{scheduleId}/priority/{priority}")
     public void setSchedulePriority(@PathParam("scheduleId") int scheduleId, @PathParam("priority") int priority)
@@ -243,7 +240,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().setSchedulePriority(scheduleId, priority);
     }
 
-    @Override
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Path("ji/{jobId}")
@@ -253,7 +249,6 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getJob(jobId);
     }
 
-    @Override
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Path("ji")
@@ -263,7 +258,6 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getJobs();
     }
 
-    @Override
     @GET
     @Path("ji/active")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -273,7 +267,6 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getActiveJobs();
     }
 
-    @Override
     @Path("user/{username}/ji")
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @GET
@@ -283,8 +276,9 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getUserActiveJobs(userName);
     }
 
-    // Not exposed directly - the Query object passed as parameter actually contains results...
-    @Override
+    // Not exposed directly - the Query object passed as parameter actually contains
+    // results...
+
     public List<JobInstance> getJobs(Query query)
     {
         return JqmClientFactory.getClient().getJobs(query);
@@ -300,7 +294,6 @@ public class ServiceClient implements JqmClient
         return query;
     }
 
-    @Override
     @Path("ji/{jobId}/messages")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -311,13 +304,12 @@ public class ServiceClient implements JqmClient
     }
 
     // Not exposed. Use getJob => progress
-    @Override
+
     public int getJobProgress(int jobId)
     {
         throw new NotSupportedException();
     }
 
-    @Override
     @Path("ji/{jobId}/files")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -327,59 +319,55 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getJobDeliverables(jobId);
     }
 
-    // Not exposed. Returning a list of files is a joke anyway... Loop should be client-side.
-    @Override
+    // Not exposed. Returning a list of files is a joke anyway... Loop should be
+    // client-side.
+
     public List<InputStream> getJobDeliverablesContent(int jobId)
     {
         throw new NotSupportedException();
     }
 
-    @Override
     @Path("ji/files")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces("application/octet-stream")
     @POST
-    public InputStream getDeliverableContent(Deliverable file)
+    public InputStream getDeliverableContent(Deliverable file, @Context HttpServletResponse res)
     {
         SelfDestructFileStream fs = (SelfDestructFileStream) JqmClientFactory.getClient().getDeliverableContent(file);
         res.setHeader("Content-Disposition", "attachment; filename=" + fs.nameHint);
         return fs;
     }
 
-    @Override
     @Path("ji/files/{id}")
     @Produces("application/octet-stream")
     @GET
-    public InputStream getDeliverableContent(@PathParam("id") int delId)
+    public InputStream getDeliverableContent(@PathParam("id") int delId, @Context HttpServletResponse res)
     {
         SelfDestructFileStream fs = (SelfDestructFileStream) JqmClientFactory.getClient().getDeliverableContent(delId);
         res.setHeader("Content-Disposition", "attachment; filename=" + fs.nameHint);
         return fs;
     }
 
-    @Override
     @Path("ji/{jobId}/stderr")
     @Produces("application/octet-stream")
     @GET
-    public InputStream getJobLogStdErr(@PathParam("jobId") int jobId)
+    public InputStream getJobLogStdErr(@PathParam("jobId") int jobId, @Context HttpServletResponse res)
     {
         SelfDestructFileStream fs = (SelfDestructFileStream) JqmClientFactory.getClient().getJobLogStdErr(jobId);
         res.setHeader("Content-Disposition", "attachment; filename=" + fs.nameHint);
         return fs;
     }
 
-    @Override
     @Path("ji/{jobId}/stdout")
     @Produces("application/octet-stream")
     @GET
-    public InputStream getJobLogStdOut(@PathParam("jobId") int jobId)
+    public InputStream getJobLogStdOut(@PathParam("jobId") int jobId, @Context HttpServletResponse res)
     {
         SelfDestructFileStream fs = (SelfDestructFileStream) JqmClientFactory.getClient().getJobLogStdOut(jobId);
         res.setHeader("Content-Disposition", "attachment; filename=" + fs.nameHint);
         return fs;
     }
 
-    @Override
     @Path("q")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -389,7 +377,6 @@ public class ServiceClient implements JqmClient
         return JqmClientFactory.getClient().getQueues();
     }
 
-    @Override
     public void pauseQueue(Queue q)
     {
         JqmClientFactory.getClient().pauseQueue(q);
@@ -404,7 +391,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().pauseQueue(q);
     }
 
-    @Override
     public void resumeQueue(Queue q)
     {
         resumeQueue(q.getId());
@@ -419,7 +405,6 @@ public class ServiceClient implements JqmClient
         JqmClientFactory.getClient().resumeQueue(q);
     }
 
-    @Override
     public void clearQueue(Queue q)
     {
         clearQueue(q.getId());
@@ -443,7 +428,6 @@ public class ServiceClient implements JqmClient
         return getQueueStatus(q);
     }
 
-    @Override
     public QueueStatus getQueueStatus(Queue q)
     {
         return JqmClientFactory.getClient().getQueueStatus(q);
@@ -458,13 +442,11 @@ public class ServiceClient implements JqmClient
         return getQueueEnabledCapacity(q);
     }
 
-    @Override
     public int getQueueEnabledCapacity(Queue q)
     {
         return JqmClientFactory.getClient().getQueueEnabledCapacity(q);
     }
 
-    @Override
     public void dispose()
     {
         log.debug("calling WS dispose");
@@ -492,7 +474,7 @@ public class ServiceClient implements JqmClient
     @Path("jd")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Override
+
     @HttpCache("public, max-age=60")
     public List<JobDef> getJobDefinitions()
     {
@@ -502,14 +484,13 @@ public class ServiceClient implements JqmClient
     @Path("jd/{applicationName}")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    @Override
+
     @HttpCache("public, max-age=60")
     public List<JobDef> getJobDefinitions(@PathParam("applicationName") String application)
     {
         return JqmClientFactory.getClient().getJobDefinitions(application);
     }
 
-    @Override
     @Path("jd/name/{name}")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.api;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -29,7 +29,7 @@ public class ErrorDto extends RuntimeException
     private String userReadableMessage, developerMessage, stacktrace;
     private Integer errorCode;
 
-    Status httpStatus;
+    public Status httpStatus;
 
     public ErrorDto()
     {

@@ -13,6 +13,7 @@
         "**/.settings": true,
         "**/.factorypath": true
     },
+
     "LineCount.includes": [
         "**/*.java",
         "**/*.js",
@@ -31,8 +32,10 @@
         "md": false,
         "outdir": "jqm-all/jqm-service/target/count/"
     },
+
     "editor.formatOnSave": true,
-    "java.format.settings.url": "./jqm-all/jqm-doc/src/site/sphinx/files/format_eclipse_modified_java.xml",
+
+    "java.format.settings.url": "file:jqm-all/jqm-doc/src/site/sphinx/files/format_eclipse_modified_java.xml",
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.import.exclusions": [
         "**/.*",
@@ -55,17 +58,20 @@
             "workingDirectory": "${workspaceFolder}/jqm-all/jqm-integration-tests-ws"
         }
     ],
+
     "maven.excludedFolders": [
         "**/.*", // exclude hidden folders
         "**/node_modules", // exclude node modules to speed up
         "**/target" // exclude duplicated pom file in target folder
     ],
     "maven.executable.options": "",
+
     "javascript.format.placeOpenBraceOnNewLineForFunctions": true,
     "javascript.format.placeOpenBraceOnNewLineForControlBlocks": true,
-    "restructuredtext.confPath": "${workspaceFolder}\\jqm-all\\jqm-doc\\src\\site\\sphinx",
     "prettier.printWidth": 180,
     "[javascript]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
-    }
+    },
+
+    "restructuredtext.confPath": "${workspaceFolder}\\jqm-all\\jqm-doc\\src\\site\\sphinx",
 }

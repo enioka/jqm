@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import javax.servlet.ServletContext;
 import javax.ws.rs.ApplicationPath;
@@ -29,6 +29,10 @@ import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.NoResultException;
 import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.model.Node;
+import com.enioka.jqm.ws.api.Helpers;
+import com.enioka.jqm.ws.api.ServiceAdmin;
+import com.enioka.jqm.ws.api.ServiceClient;
+import com.enioka.jqm.ws.api.ServiceSimple;
 
 @ApplicationPath("/ws/*")
 public class JqmRestApp extends ResourceConfig
@@ -74,9 +78,11 @@ public class JqmRestApp extends ResourceConfig
             }
             else
             {
-                // The application is hosted by some other server (Tomcat, JBoss... but not a JQM node)
+                // The application is hosted by some other server (Tomcat, JBoss... but not a
+                // JQM node)
 
-                // Never load the simple API when not running on JQM's own server. This API relies on files that are local to the JQM
+                // Never load the simple API when not running on JQM's own server. This API
+                // relies on files that are local to the JQM
                 // server.
                 loadApiSimple = false;
                 // Always load the two others

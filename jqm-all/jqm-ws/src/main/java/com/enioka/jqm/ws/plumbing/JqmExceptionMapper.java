@@ -13,17 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
 import com.enioka.jqm.api.client.core.JqmInvalidRequestException;
+import com.enioka.jqm.ws.api.ErrorDto;
 
-@Provider
+//@Provider
 public class JqmExceptionMapper implements ExceptionMapper<JqmInvalidRequestException>
 {
     // @Context
@@ -32,7 +32,8 @@ public class JqmExceptionMapper implements ExceptionMapper<JqmInvalidRequestExce
     @Override
     public Response toResponse(JqmInvalidRequestException exception)
     {
-        // String type = headers.getMediaType() == null ? MediaType.APPLICATION_JSON : headers.getMediaType().getType();
+        // String type = headers.getMediaType() == null ? MediaType.APPLICATION_JSON :
+        // headers.getMediaType().getType();
         ErrorDto d = new ErrorDto(exception.getMessage(), 10, exception, Status.BAD_REQUEST);
         return Response.status(Response.Status.BAD_REQUEST).entity(d).type(MediaType.APPLICATION_JSON).build();
     }

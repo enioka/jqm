@@ -36,8 +36,8 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
+import org.ops4j.pax.exam.Option;
 
 import com.enioka.jqm.api.client.core.JobInstance;
 import com.enioka.jqm.api.client.core.JqmClientFactory;
@@ -51,9 +51,16 @@ import com.enioka.jqm.test.helpers.TestHelpers;
  * Tests of the simple web API.
  *
  */
-@Ignore // TODO
 public class ApiSimpleTest extends JqmBaseTest
 {
+    private int port;
+
+    @Override
+    protected Option[] moreOsgiconfig()
+    {
+        return webConfig();
+    }
+
     @Before
     public void before() throws IOException
     {
@@ -64,7 +71,13 @@ public class ApiSimpleTest extends JqmBaseTest
         FileUtils.copyFile(jar, new File("./webapp/jqm-ws.war"));
 
         addAndStartEngine();
-        TestHelpers.node = Node.select_single(cnx, "node_select_by_id", TestHelpers.node.getId());
+
+        serviceWaiter.waitForService("[com.enioka.jqm.ws.api.ServiceSimple]");
+        serviceWaiter.waitForService("[javax.servlet.Servlet]"); // HTTP whiteboard
+        serviceWaiter.waitForService("[javax.servlet.Servlet]"); // JAX-RS whiteboard
+
+        port = Node.select_single(cnx, "node_select_by_id", TestHelpers.node.getId()).getPort();
+        jqmlogger.info("Jetty port seen by client is {}", port);
     }
 
     @Test
@@ -73,7 +86,7 @@ public class ApiSimpleTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiSend3Msg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 42, "Marsu-Application", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
 
-        HttpPost post = new HttpPost("http://" + TestHelpers.node.getDns() + ":" + TestHelpers.node.getPort() + "/ws/simple/ji");
+        HttpPost post = new HttpPost("http://" + TestHelpers.node.getDns() + ":" + port + "/ws/simple/ji");
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("applicationname", "Marsu-Application"));
         nvps.add(new BasicNameValuePair("user", "testuser"));
@@ -123,7 +136,7 @@ public class ApiSimpleTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiSend3Msg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 42, "Marsu-Application", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
 
-        HttpPost post = new HttpPost("http://" + TestHelpers.node.getDns() + ":" + TestHelpers.node.getPort() + "/ws/simple/ji");
+        HttpPost post = new HttpPost("http://" + TestHelpers.node.getDns() + ":" + port + "/ws/simple/ji");
         List<NameValuePair> nvps = new ArrayList<>();
         nvps.add(new BasicNameValuePair("applicationname", "Marsu-Application"));
         nvps.add(new BasicNameValuePair("user", "testuser"));
@@ -157,7 +170,7 @@ public class ApiSimpleTest extends JqmBaseTest
 
         TestHelpers.waitFor(1, 10000, cnx);
 
-        HttpGet rq = new HttpGet("http://" + TestHelpers.node.getDns() + ":" + TestHelpers.node.getPort() + "/ws/simple/status?id=" + jid);
+        HttpGet rq = new HttpGet("http://" + TestHelpers.node.getDns() + ":" + port + "/ws/simple/status?id=" + jid);
         res = client.execute(rq);
         Assert.assertEquals(200, res.getStatusLine().getStatusCode());
 

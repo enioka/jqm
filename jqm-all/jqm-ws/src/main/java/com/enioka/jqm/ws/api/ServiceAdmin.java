@@ -13,12 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.api;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,12 +57,30 @@ import com.enioka.jqm.model.RPermission;
 import com.enioka.jqm.model.RRole;
 import com.enioka.jqm.model.RUser;
 import com.enioka.jqm.pki.JdbcCa;
+import com.enioka.jqm.ws.plumbing.HttpCache;
 import com.enioka.jqm.xml.JqmXmlException;
 import com.enioka.jqm.xml.XmlJobDefExporter;
 
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.jaxrs.whiteboard.propertytypes.JaxrsResource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Path("/admin")
+@Component(service = ServiceAdmin.class, configurationPolicy = ConfigurationPolicy.REQUIRE, scope = ServiceScope.SINGLETON)
+@JaxrsResource
 public class ServiceAdmin
 {
+    static Logger log = LoggerFactory.getLogger(ServiceAdmin.class);
+
+    @Activate
+    public void onServiceActivation(Map<String, Object> properties)
+    {
+        log.info("\tStarting ServiceAdmin");
+    }
 
     ///////////////////////////////////////////////////////////////////////////
     // Nodes

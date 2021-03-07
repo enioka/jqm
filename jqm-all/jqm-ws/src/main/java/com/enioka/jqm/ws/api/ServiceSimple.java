@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.api;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,12 +22,12 @@ import java.io.InputStream;
 import java.lang.management.ManagementFactory;
 import java.nio.charset.Charset;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.management.MBeanServer;
 import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -41,6 +41,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
+import com.enioka.admin.JqmAdminApiException;
 import com.enioka.jqm.api.client.core.JobRequest;
 import com.enioka.jqm.api.client.core.JqmClientFactory;
 import com.enioka.jqm.jdbc.DbConn;
@@ -51,6 +52,11 @@ import com.enioka.jqm.model.Node;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.input.ReversedLinesFileReader;
 import org.apache.commons.lang.StringUtils;
+import org.osgi.service.component.annotations.Activate;
+import org.osgi.service.component.annotations.Component;
+import org.osgi.service.component.annotations.ConfigurationPolicy;
+import org.osgi.service.component.annotations.ServiceScope;
+import org.osgi.service.jaxrs.whiteboard.propertytypes.JaxrsResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -59,38 +65,49 @@ import org.slf4j.LoggerFactory;
  * other sets of APIs.
  *
  */
+@Component(service = ServiceSimple.class, configurationPolicy = ConfigurationPolicy.REQUIRE, scope = ServiceScope.SINGLETON)
+@JaxrsResource
 @Path("/simple")
 public class ServiceSimple
 {
     private static Logger log = LoggerFactory.getLogger(ServiceSimple.class);
 
-    private @Context HttpServletResponse res;
-    private @Context SecurityContext security;
-    private Node n = null;
-    @Context
-    private ServletContext context;
+    private Integer jqmNodeId = null;
 
-    /////////////////////////////////////////////////////////////
-    // Constructor: determine if running on top of JQM or not
-    /////////////////////////////////////////////////////////////
-
-    public ServiceSimple(@Context ServletContext context)
+    @Activate
+    public void onServiceActivation(Map<String, Object> properties)
     {
-        if (context.getInitParameter("jqmnodeid") != null)
+        if (!properties.containsKey("jqmnodeid"))
+        {
+            throw new JqmAdminApiException("OSGi configuration for ServiceSimple does not contain a valid node ID");
+        }
+
+        jqmNodeId = (int) properties.get("jqmnodeid"); // small int - cannot be null.
+        log.info("\tStarting ServiceSimple with node ID {}", jqmNodeId);
+    }
+
+    /////////////////////////////////////////////////////////////
+    // Somes file APIs are only available if the node runs on top of JQM
+    /////////////////////////////////////////////////////////////
+
+    private Node getLocalNodeIfRunningOnJqm()
+    {
+        if (jqmNodeId != null)
         {
             // Running on a JQM node, not a standard servlet container.
             try (DbConn cnx = Helpers.getDbSession())
             {
                 try
                 {
-                    n = Node.select_single(cnx, "node_select_by_id", Integer.parseInt(context.getInitParameter("jqmnodeid")));
+                    return Node.select_single(cnx, "node_select_by_id", jqmNodeId);
                 }
                 catch (NoResultException e)
                 {
-                    throw new RuntimeException("invalid configuration: no node of ID " + context.getInitParameter("jqmnodeid"));
+                    throw new RuntimeException("invalid configuration: no node of ID " + jqmNodeId);
                 }
             }
         }
+        return null;
     }
 
     /////////////////////////////////////////////////////////////
@@ -112,26 +129,28 @@ public class ServiceSimple
     @GET
     @Path("stdout")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public InputStream getLogOut(@QueryParam("id") int id)
+    public InputStream getLogOut(@QueryParam("id") int id, @Context HttpServletResponse res, @Context SecurityContext security)
     {
         res.setHeader("Content-Disposition", "attachment; filename=" + id + ".stdout.txt");
-        return getFile(FilenameUtils.concat("./logs", StringUtils.leftPad("" + id, 10, "0") + ".stdout.log"));
+        return getFile(FilenameUtils.concat("./logs", StringUtils.leftPad("" + id, 10, "0") + ".stdout.log"), security);
     }
 
     @GET
     @Path("stderr")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public InputStream getLogErr(@QueryParam("id") int id)
+    public InputStream getLogErr(@QueryParam("id") int id, @Context HttpServletResponse res, @Context SecurityContext security)
     {
         res.setHeader("Content-Disposition", "attachment; filename=" + id + ".stderr.txt");
-        return getFile(FilenameUtils.concat("./logs", StringUtils.leftPad("" + id, 10, "0") + ".stderr.log"));
+        return getFile(FilenameUtils.concat("./logs", StringUtils.leftPad("" + id, 10, "0") + ".stderr.log"), security);
     }
 
     @GET
     @Path("file")
     @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public InputStream getDeliverableStream(@QueryParam("id") String randomId)
+    public InputStream getDeliverableStream(@QueryParam("id") String randomId, @Context HttpServletResponse res,
+            @Context SecurityContext security)
     {
+        Node n = getLocalNodeIfRunningOnJqm();
         if (n == null)
         {
             throw new ErrorDto("can only retrieve a file when the web app runs on top of JQM", "", 7, Status.BAD_REQUEST);
@@ -159,14 +178,14 @@ public class ServiceSimple
 
         String ext = FilenameUtils.getExtension(d.getOriginalFileName());
         res.setHeader("Content-Disposition", "attachment; filename=" + d.getFileFamily() + "." + d.getId() + "." + ext);
-        return getFile(FilenameUtils.concat(n.getDlRepo(), d.getFilePath()));
+        return getFile(FilenameUtils.concat(n.getDlRepo(), d.getFilePath()), security);
     }
 
-    public InputStream getFile(String path)
+    private InputStream getFile(String path, @Context SecurityContext security)
     {
         try
         {
-            log.debug("file retrieval service called by user " + getUserName() + " for file " + path);
+            log.debug("file retrieval service called by user " + getUserName(security) + " for file " + path);
             return new FileInputStream(path);
         }
         catch (FileNotFoundException e)
@@ -180,6 +199,7 @@ public class ServiceSimple
     @Produces(MediaType.TEXT_PLAIN)
     public String getEngineLog(@QueryParam("latest") int latest)
     {
+        Node n = getLocalNodeIfRunningOnJqm();
         if (n == null)
         {
             throw new ErrorDto("can only retrieve a file when the web app runs on top of JQM", "", 7, Status.BAD_REQUEST);
@@ -191,8 +211,8 @@ public class ServiceSimple
             latest = 10000;
         }
 
-        File f = new File(FilenameUtils.concat("./logs/", "jqm-" + context.getInitParameter("jqmnode") + ".log"));
-        try(ReversedLinesFileReader r =  new ReversedLinesFileReader(f, Charset.defaultCharset()))
+        File f = new File(FilenameUtils.concat("./logs/", "jqm-" + n.getId() + ".log"));
+        try (ReversedLinesFileReader r = new ReversedLinesFileReader(f, Charset.defaultCharset()))
         {
             StringBuilder sb = new StringBuilder(latest);
             String buf = r.readLine();
@@ -212,7 +232,7 @@ public class ServiceSimple
         }
     }
 
-    private String getUserName()
+    private String getUserName(@Context SecurityContext security)
     {
         if (security != null && security.getUserPrincipal() != null && security.getUserPrincipal().getName() != null)
         {
@@ -236,7 +256,7 @@ public class ServiceSimple
             @FormParam("mail") String mail, @FormParam("keyword1") String keyword1, @FormParam("keyword2") String keyword2,
             @FormParam("keyword3") String keyword3, @FormParam("parentid") Integer parentId, @FormParam("user") String user,
             @FormParam("sessionid") String sessionId, @FormParam("parameterNames") List<String> prmNames,
-            @FormParam("parameterValues") List<String> prmValues)
+            @FormParam("parameterValues") List<String> prmValues, @Context SecurityContext security)
     {
         if (user == null && security != null && security.getUserPrincipal() != null)
         {
@@ -283,6 +303,7 @@ public class ServiceSimple
     public String getLocalNodeHealth() throws MalformedObjectNameException
     {
         // Local service only - not enabled when running on top of Tomcat & co.
+        Node n = getLocalNodeIfRunningOnJqm();
         if (n == null)
         {
             throw new ErrorDto("can only retrieve local node health when the web app runs on top of JQM", "", 7, Status.BAD_REQUEST);

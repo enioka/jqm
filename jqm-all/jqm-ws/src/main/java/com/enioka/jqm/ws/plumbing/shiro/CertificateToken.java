@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.webui.shiro;
+package com.enioka.jqm.ws.plumbing.shiro;
 
 import org.apache.shiro.authc.AuthenticationToken;
 import org.bouncycastle.asn1.x500.RDN;
@@ -44,11 +44,14 @@ public class CertificateToken implements AuthenticationToken
 
     public String getUserName()
     {
-        try {
+        try
+        {
             X500Name x500name = new JcaX509CertificateHolder(clientCert).getSubject();
             RDN cn = x500name.getRDNs(BCStyle.CN)[0];
             return IETFUtils.valueToString(cn.getFirst().getValue());
-        } catch (CertificateEncodingException e) {
+        }
+        catch (CertificateEncodingException e)
+        {
             return "";
         }
     }
@@ -56,7 +59,8 @@ public class CertificateToken implements AuthenticationToken
     @Override
     public Object getCredentials()
     {
-        // No need for credentials - the very existence of a validated certificate is enough
+        // No need for credentials - the very existence of a validated certificate is
+        // enough
         return null;
     }
 

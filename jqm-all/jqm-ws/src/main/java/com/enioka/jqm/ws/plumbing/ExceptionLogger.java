@@ -1,4 +1,4 @@
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import org.glassfish.jersey.server.monitoring.ApplicationEvent;
 import org.glassfish.jersey.server.monitoring.ApplicationEventListener;
@@ -17,7 +17,8 @@ public class ExceptionLogger implements ApplicationEventListener, RequestEventLi
 
     @Override
     public void onEvent(final ApplicationEvent applicationEvent)
-    {}
+    {
+    }
 
     @Override
     public RequestEventListener onRequest(final RequestEvent requestEvent)

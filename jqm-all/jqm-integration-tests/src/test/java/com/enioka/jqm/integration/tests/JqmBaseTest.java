@@ -42,6 +42,7 @@ import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.DbManager;
 import com.enioka.jqm.service.EngineCallback;
 import com.enioka.jqm.test.helpers.DebugHsqlDbServer;
+import com.enioka.jqm.test.helpers.ServiceWaiter;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
 import org.apache.shiro.util.Assert;
@@ -58,6 +59,7 @@ import org.ops4j.pax.exam.junit.PaxExam;
 import org.ops4j.pax.exam.spi.reactors.ExamReactorStrategy;
 import org.ops4j.pax.exam.spi.reactors.PerClass;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -79,17 +81,28 @@ public class JqmBaseTest
     @Inject
     protected DebugHsqlDbServer s;
 
+    @Inject
+    ConfigurationAdmin adminService;
+
+    @Inject
+    ServiceWaiter serviceWaiter;
+
     @Rule
     public TestName testName = new TestName();
 
     @Configuration
     public Option[] config()
     {
-        return options(
-                // OSGI DECLARATIVE SERVICES
+        Option[] additionnal = moreOsgiconfig();
+        Option[] res = new Option[] {
+                // OSGi DECLARATIVE SERVICES
                 mavenBundle("org.osgi", "org.osgi.service.cm").versionAsInProject(),
                 mavenBundle("org.apache.felix", "org.apache.felix.scr", "2.1.24"),
-                mavenBundle("org.osgi", "org.osgi.util.promise", "1.1.1"), mavenBundle("org.osgi", "org.osgi.util.function", "1.1.0"),
+                mavenBundle("org.osgi", "org.osgi.util.promise", "1.1.1"), //
+                mavenBundle("org.osgi", "org.osgi.util.function", "1.1.0"),
+
+                // OSGi configuration service
+                mavenBundle("org.apache.felix", "org.apache.felix.configadmin", "1.9.20"),
 
                 // Our test database (for most tests)
                 mavenBundle("org.hsqldb", "hsqldb").versionAsInProject(),
@@ -104,30 +117,7 @@ public class JqmBaseTest
                 // Cron
                 wrappedBundle(mavenBundle("it.sauronsoftware.cron4j", "cron4j").versionAsInProject()),
 
-                // Everything for Jetty
-                mavenBundle("javax.servlet", "javax.servlet-api").versionAsInProject(),
-                mavenBundle("javax.annotation", "javax.annotation-api").versionAsInProject(),
-                mavenBundle("javax.transaction", "javax.transaction-api", "1.2"),
-                mavenBundle("javax.interceptor", "javax.interceptor-api", "1.2.2"),
-                mavenBundle("jakarta.activation", "jakarta.activation-api", "1.2.2"),
-                wrappedBundle(mavenBundle("javax.enterprise", "cdi-api", "1.0")), // versions should resolve once service is OK
-                mavenBundle("org.ow2.asm", "asm").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-annotations").versionAsInProject(),
-                // mavenBundle("org.eclipse.jetty", "jetty-deploy", "9.4.31.v20200723"),
-                mavenBundle("org.eclipse.jetty", "jetty-http").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-io").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-jndi").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-plus").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-security").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-server").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-servlet").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-util").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-webapp").versionAsInProject(),
-                mavenBundle("org.eclipse.jetty", "jetty-xml").versionAsInProject(),
-                // mavenBundle("org.eclipse.jetty.osgi", "jetty-osgi-boot", "9.4.31.v20200723"),
-                // mavenBundle("org.eclipse.jetty.toolchain", "jetty-osgi-servlet-api", "4.0.1"),
-
-                // SPI FLY
+                // SPI FLY (serviceloader compatibility layer)
                 mavenBundle("org.apache.aries.spifly", "org.apache.aries.spifly.dynamic.bundle", "1.3.2"),
                 mavenBundle("org.apache.aries", "org.apache.aries.util", "1.1.3"),
 
@@ -136,26 +126,22 @@ public class JqmBaseTest
                 mavenBundle("org.ow2.asm", "asm-util", "9.0"), mavenBundle("org.ow2.asm", "asm-tree", "9.0"),
                 mavenBundle("org.ow2.asm", "asm-analysis", "9.0"),
 
-                // Eclipse OSGi
-                // mavenBundle("org.eclipse.osgi", "org.eclipse.osgi", "3.6.0.v20100517").noStart(),
-                // mavenBundle("org.eclipse.osgi", "org.eclipse.osgi.services", "3.2.100.v20100503").noStart(),
-
-                // Web security
-                mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
-                mavenBundle("org.apache.shiro", "shiro-web").versionAsInProject(),
-                mavenBundle("org.bouncycastle", "bcpkix-jdk15on").versionAsInProject(),
-                mavenBundle("org.bouncycastle", "bcprov-jdk15on").versionAsInProject(),
-
                 // CLI
                 wrappedBundle(mavenBundle("com.beust", "jcommander").versionAsInProject()),
 
                 // LOG
-                mavenBundle("commons-logging", "commons-logging", "1.2"), mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
+                mavenBundle("commons-logging", "commons-logging", "1.2"), //
+                mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
                 mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
                 mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
 
-                // XML
-                wrappedBundle(mavenBundle("org.jdom", "jdom").versionAsInProject()), mavenBundle("javax.xml.bind", "jaxb-api", "2.3.1"),
+                // XML & binding though annotations
+                wrappedBundle(mavenBundle("org.jdom", "jdom").versionAsInProject()), //
+                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2", "2.9.0"),
+                mavenBundle("jakarta.activation", "jakarta.activation-api", "1.2.2"),
+                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.stax-api-1.2", "2.9.0"),
+                mavenBundle("org.apache.geronimo.specs", "geronimo-annotation_1.3_spec", "1.3"),
+                mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api", "2.3.3"),
 
                 // Maven resolver libs
                 wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-api", "3.1.3")),
@@ -163,6 +149,17 @@ public class JqmBaseTest
                 wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-api-maven", "3.1.3")),
                 wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-impl-maven", "3.1.3")),
                 wrappedBundle(mavenBundle("org.jvnet.winp", "winp", "1.27")),
+
+                systemProperty("org.ops4j.pax.url.mvn.repositories").value("https://repo1.maven.org/maven2@id=central"),
+                systemProperty("org.ops4j.pax.url.mvn.useFallbackRepositories").value("false"),
+
+                // Shiro is needed by test helpers & client lib for password generation
+                mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
+
+                // Needed for certificate init on main service startup. (TODO: remove once a dedicated OSGi service)
+                mavenBundle("org.bouncycastle", "bcpkix-jdk15on").versionAsInProject(),
+                mavenBundle("org.bouncycastle", "bcprov-jdk15on").versionAsInProject(),
+                mavenBundle("com.enioka.jqm", "jqm-pki").versionAsInProject(),
 
                 // JQM tested libraries
                 mavenBundle("com.enioka.jqm", "jqm-impl-hsql").versionAsInProject(),
@@ -172,7 +169,6 @@ public class JqmBaseTest
                 mavenBundle("com.enioka.jqm", "jqm-api-client-core").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-xml").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-service").versionAsInProject(),
-                mavenBundle("com.enioka.jqm", "jqm-pki").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-admin").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-model").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-impl-hsql").versionAsInProject(),
@@ -191,8 +187,86 @@ public class JqmBaseTest
                 // Log config file
                 systemProperty("logback.configurationFile")
                         .value("file:" + Paths.get("../jqm-service/target/classes/logback.xml").toAbsolutePath().normalize().toString()),
-                systemProperty("org.ops4j.pax.url.mvn.repositories").value("https://repo1.maven.org/maven2@id=central"),
-                systemProperty("org.ops4j.pax.url.mvn.useFallbackRepositories").value("false"));
+
+        };
+
+        final int localOptionsCount = res.length;
+        res = java.util.Arrays.copyOf(res, localOptionsCount + additionnal.length);
+        for (int i = 0; i < additionnal.length; i++)
+        {
+            res[localOptionsCount + i] = additionnal[i];
+        }
+        return res;
+    }
+
+    /**
+     * To be optionaly overloaded by tests.
+     */
+    protected Option[] moreOsgiconfig()
+    {
+        return options();
+    }
+
+    /**
+     * Separated web configuration (as it is rather heavy only load it inside {@link #moreOsgiconfig()} if needed)
+     */
+    protected Option[] webConfig()
+    {
+        return options(
+                // OSGi HTTP Whiteboard (based on Jetty, providing OSGi HTTP service, used by JAX-RS whiteboard)
+                mavenBundle("jakarta.activation", "jakarta.activation-api", "1.2.2"),
+                mavenBundle("javax.xml.bind", "jaxb-api", "2.4.0-b180830.0359"),
+                mavenBundle("org.apache.felix", "org.apache.felix.http.api", "3.0.0"),
+                mavenBundle("org.apache.felix", "org.apache.felix.http.servlet-api", "1.1.2"),
+                mavenBundle("org.apache.felix", "org.apache.felix.http.jetty", "4.1.4"),
+                mavenBundle("org.osgi", "org.osgi.service.http.whiteboard", "1.1.0"),
+
+                // OSGi JAX-RS whiteboard (based on CXF, with full useless SOAP implementation)
+                mavenBundle("org.osgi", "org.osgi.service.jaxrs", "1.0.0"),
+                mavenBundle("org.apache.aries.jax.rs", "org.apache.aries.jax.rs.whiteboard", "1.0.10"),
+                mavenBundle("org.apache.aries.spec", "org.apache.aries.javax.jax.rs-api", "1.0.4"),
+                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2", "2.9.0"),
+                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.stax-api-1.2", "2.9.0"),
+                mavenBundle("org.apache.geronimo.specs", "geronimo-annotation_1.3_spec", "1.3"),
+                mavenBundle("javax.xml.ws", "jaxws-api", "2.3.1"), //
+                mavenBundle("jakarta.xml.soap", "jakarta.xml.soap-api", "1.4.2"),
+                mavenBundle("jakarta.annotation", "jakarta.annotation-api", "1.3.5"),
+
+                systemProperty("org.apache.felix.http.enable").value("false"),
+                systemProperty("org.apache.felix.https.enable").value("false"), //
+                systemProperty("org.osgi.service.http.port").value("-1"),
+                systemProperty("org.apache.aries.jax.rs.whiteboard.default.enabled").value("false"),
+
+                // Jersey and other webapp dependencies
+                mavenBundle().groupId("org.javassist").artifactId("javassist").versionAsInProject(),
+
+                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-api").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.hk2").artifactId("osgi-resource-locator").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-locator").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.hk2").artifactId("hk2-utils").versionAsInProject(),
+
+                mavenBundle().groupId("org.glassfish.hk2.external").artifactId("jakarta.inject").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.hk2.external").artifactId("aopalliance-repackaged").versionAsInProject(),
+
+                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-common").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-server").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.containers").artifactId("jersey-container-servlet-core").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.core").artifactId("jersey-client").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.inject").artifactId("jersey-hk2").versionAsInProject(),
+
+                mavenBundle().groupId("org.glassfish.jersey.media").artifactId("jersey-media-jaxb").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.media").artifactId("jersey-media-moxy").versionAsInProject(),
+                mavenBundle().groupId("org.eclipse.persistence").artifactId("org.eclipse.persistence.moxy").versionAsInProject(),
+                mavenBundle().groupId("org.eclipse.persistence").artifactId("org.eclipse.persistence.core").versionAsInProject(),
+                mavenBundle().groupId("org.glassfish.jersey.ext").artifactId("jersey-entity-filtering").versionAsInProject(),
+
+                // Web security
+                mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
+                mavenBundle("org.apache.shiro", "shiro-web").versionAsInProject(),
+
+                // Our web project
+                mavenBundle("com.enioka.jqm", "jqm-ws").type("war").versionAsInProject() // Yes this is a war - actually a wab - deployment
+        );
     }
 
     @Before
@@ -281,7 +355,7 @@ public class JqmBaseTest
     protected JqmEngineOperations addAndStartEngine(String nodeName)
     {
         beforeStartEngine(nodeName);
-        JqmEngineOperations e = JqmEngineFactory.startEngine(nodeName, new EngineCallback());
+        JqmEngineOperations e = JqmEngineFactory.startEngine(nodeName, new EngineCallback(adminService));
         engines.put(nodeName, e);
         afterStartEngine(nodeName);
         return e;

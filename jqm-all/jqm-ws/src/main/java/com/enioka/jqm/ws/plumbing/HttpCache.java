@@ -1,4 +1,4 @@
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -20,8 +20,8 @@ import java.lang.annotation.Target;
  * For example, <code>@HttpCache("private, max-age=3600")</code> will allow clients (and only clients) to cache the data for one hour.<br>
  * Default is <code>no-cache</code>.
  */
-@Target(ElementType.METHOD)
-@Retention(RetentionPolicy.RUNTIME)
+// @Target(ElementType.METHOD)
+// @Retention(RetentionPolicy.RUNTIME)
 public @interface HttpCache
 {
     String value() default "no-cache";

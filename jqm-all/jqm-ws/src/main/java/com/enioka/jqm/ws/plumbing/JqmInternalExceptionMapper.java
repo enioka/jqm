@@ -13,23 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
-@Provider
-public class ErrorHandler implements ExceptionMapper<ErrorDto>
+import com.enioka.jqm.api.client.core.JqmClientException;
+import com.enioka.jqm.ws.api.ErrorDto;
+
+//@Provider
+public class JqmInternalExceptionMapper implements ExceptionMapper<JqmClientException>
 {
     // @Context
-    // private HttpServletResponse headers;
+    // private HttpHeaders headers;
 
     @Override
-    public Response toResponse(ErrorDto e)
+    public Response toResponse(JqmClientException exception)
     {
-        // String type = headers.getContentType() == null ? MediaType.APPLICATION_JSON : headers.getContentType();
-        return Response.status(e.httpStatus).entity(e).type(MediaType.APPLICATION_JSON).build();
+        // String type = headers.getMediaType() == null ? MediaType.APPLICATION_JSON :
+        // headers.getMediaType().getType();
+        ErrorDto d = new ErrorDto(exception.getMessage(), 9, exception, Status.INTERNAL_SERVER_ERROR);
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(d).type(MediaType.APPLICATION_JSON).build();
     }
 }

@@ -22,8 +22,8 @@ import java.util.List;
 
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Assume;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.enioka.jqm.api.client.core.JobInstance;
@@ -78,6 +78,7 @@ public class FiboTest extends JqmBaseTest
     }
 
     @Test
+    @Ignore // TODO
     public void testFiboHib() throws Exception
     {
         AssumeHsqldb();

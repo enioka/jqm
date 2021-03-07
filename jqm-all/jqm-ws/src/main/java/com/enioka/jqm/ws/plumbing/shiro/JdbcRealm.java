@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.webui.shiro;
+package com.enioka.jqm.ws.plumbing.shiro;
 
-import com.enioka.jqm.api.Helpers;
+import com.enioka.jqm.ws.api.Helpers;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.NoResultException;
 import com.enioka.jqm.model.RPermission;

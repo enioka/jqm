@@ -22,7 +22,7 @@ class CommandStartNode extends CommandBase
         try
         {
             engine = new JqmEngine();
-            engine.start(nodeName, new EngineCallback());
+            engine.start(nodeName, new EngineCallback(null));
             engine.join();
             return 0;
         }

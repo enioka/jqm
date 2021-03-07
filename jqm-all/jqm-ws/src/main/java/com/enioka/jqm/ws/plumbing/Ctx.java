@@ -1,4 +1,4 @@
-package com.enioka.jqm.api;
+package com.enioka.jqm.ws.plumbing;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -9,7 +9,7 @@ import com.enioka.jqm.api.client.core.JqmClientFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@WebListener
+//@WebListener
 public class Ctx implements ServletContextListener
 {
     static Logger log = LoggerFactory.getLogger(Ctx.class);
@@ -23,7 +23,7 @@ public class Ctx implements ServletContextListener
     @Override
     public void contextDestroyed(ServletContextEvent sce)
     {
-        log.debug("Cleaning after Hibernate during WS application shutdown");
+        log.debug("Cleaning connections during WS application shutdown");
         JqmClientFactory.getClient().dispose();
     }
 }

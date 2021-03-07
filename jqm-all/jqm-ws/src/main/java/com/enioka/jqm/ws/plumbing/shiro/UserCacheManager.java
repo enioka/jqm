@@ -1,4 +1,4 @@
-package com.enioka.jqm.webui.shiro;
+package com.enioka.jqm.ws.plumbing.shiro;
 
 import org.apache.shiro.cache.AbstractCacheManager;
 import org.apache.shiro.cache.Cache;

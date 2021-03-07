@@ -45,15 +45,33 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.ops4j.pax.exam.Option;
 
-@Ignore // TODO
 public class JettyTest extends JqmBaseTest
 {
+    private int port;
+
+    @Override
+    protected Option[] moreOsgiconfig()
+    {
+        return webConfig();
+    }
+
     @Before
     public void before() throws IOException
     {
         File jar = FileUtils.listFiles(new File("../jqm-ws/target/"), new String[] { "war" }, false).iterator().next();
         FileUtils.copyFile(jar, new File("./webapp/jqm-ws.war"));
+    }
+
+    private void waitStartup()
+    {
+        serviceWaiter.waitForService("[com.enioka.jqm.ws.api.ServiceSimple]");
+        serviceWaiter.waitForService("[javax.servlet.Servlet]"); // HTTP whiteboard
+        serviceWaiter.waitForService("[javax.servlet.Servlet]"); // JAX-RS whiteboard
+
+        port = Node.select_single(cnx, "node_select_by_id", TestHelpers.node.getId()).getPort();
+        jqmlogger.info("Jetty port seen by client is {}", port);
     }
 
     @Test
@@ -64,6 +82,7 @@ public class JettyTest extends JqmBaseTest
         Helpers.setSingleParam("enableWsApiAuth", "false", cnx);
 
         addAndStartEngine();
+        waitStartup();
     }
 
     @Test
@@ -74,6 +93,7 @@ public class JettyTest extends JqmBaseTest
         Helpers.setSingleParam("enableWsApiAuth", "false", cnx);
 
         addAndStartEngine();
+        waitStartup();
 
         // Launch a job so as to be able to query its status later
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
@@ -121,6 +141,7 @@ public class JettyTest extends JqmBaseTest
         cnx.commit();
 
         addAndStartEngine();
+        waitStartup();
 
         // Launch a job so as to be able to query its status later
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,

@@ -72,6 +72,7 @@
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.2.2</version>
                 <configuration>
+                    <attachClasses>true</attachClasses>
                     <webResources>
                         <resource>
                             <directory>src/main/webapp</directory>
@@ -88,6 +89,9 @@
                             </excludes>
                         </resource>
                     </webResources>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                    </archive>
                 </configuration>
             </plugin>
 
@@ -226,21 +230,29 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.plugin.version}</version>
-                <configuration>
-                    <archive combine.self="override">
-                    </archive>
-                </configuration>
-            </plugin>
-
-            <plugin>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
                 <version>${maven.bnd.plugin.version}</version>
                 <configuration>
-                    <skip>true</skip>
+                    <bnd><![CDATA[
+                        # Do not actually deploy this as an OSGi WAR but as JAX-RS whiteboard resources
+                        # Web-ContextPath: /ws
+                        # BND issue with multi version jars. https://github.com/bndtools/bnd/issues/2227
+                        -fixupmessages: "Classes found in the wrong directory";is:=warning
+                        # This is WAB, i.e. a WAR with an OSGi descriptor.
+                        -wab:
+                        # do not put libs inside META-INF/lib inside Bundle-Classpath - we want to use the same bundles as the rest of the application.
+                        -wablib:
+                        -removeheaders: Private-Package
+                        #Import-Package: org.apache.shiro.cache,org.apache.shiro.authz,org.apache.shiro.codec,org.apache.shiro.realm,org.apache.shiro.subject,org.apache.shiro.util,org.apache.shiro.authc,org.apache.shiro.web.filter.authc,\
+                        #    javax.servlet,javax.servlet.http,javax.ws.rs,javax.ws.rs.ext,javax.naming,\
+                        #    java.security.cert,java.lang.annotation,\
+                        #    org.slf4j,\
+                        #    org.glassfish.jersey.servlet,org.eclipse.persistence.jaxb,org.glassfish.jersey.server,org.glassfish.jersey.server.monitoring,\
+                        #    com.enioka.jqm.api.client.core,com.enioka.jqm.pki,com.enioka.admin,com.enioka.jqm.model,com.enioka.jqm.jdbc,com.enioka.jqm.xml
+                        # Export-Package: com.enioka.jqm.ws.api,com.enioka.jqm.ws.webui.shiro
+                    ]]>
+                    </bnd>
                 </configuration>
             </plugin>
         </plugins>
