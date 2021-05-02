@@ -2,7 +2,7 @@ package com.enioka.jqm.service;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.enioka.jqm.api.client.core.JobInstance;
+import com.enioka.jqm.client.api.JobInstance;
 import com.enioka.jqm.engine.JqmSingleRunner;
 
 @Parameters(commandNames = "Start-Single", commandDescription = "Internal JQM use only. Starts an already ATTRIBUTED job instance synchronously.")

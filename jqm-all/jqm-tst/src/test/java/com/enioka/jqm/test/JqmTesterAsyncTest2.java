@@ -5,13 +5,12 @@ import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 
+import com.enioka.jqm.client.api.Deliverable;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
+
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.enioka.jqm.api.client.core.Deliverable;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
 
 /**
  * Testing the tester... The main demo test using before and after is in the other file.
@@ -77,7 +76,8 @@ public class JqmTesterAsyncTest2 extends JqmTesterBase
                 .addSimpleJobDefinitionFromLibrary("payload1", "pyl.EngineApiSendDeliverable", "../jqm-tests/jqm-test-pyl/target/test.jar")
                 .start();
 
-        int jobId = JobRequest.create("payload1", "tesuser").addParameter("fileName", "marsu.txt").addParameter("filepath", "./").submit();
+        int jobId = JqmClientFactory.getClient().newJobRequest("payload1", "tesuser").addParameter("fileName", "marsu.txt")
+                .addParameter("filepath", "./").enqueue();
         tester.waitForResults(1, 10000, 0);
 
         Assert.assertEquals(0, tester.getNonOkCount());

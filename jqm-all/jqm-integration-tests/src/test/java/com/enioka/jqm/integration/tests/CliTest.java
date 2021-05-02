@@ -1,11 +1,11 @@
 package com.enioka.jqm.integration.tests;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.enioka.admin.MetaService;
 import com.enioka.api.admin.NodeDto;
-import com.enioka.jqm.api.client.core.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.RRole;
 import com.enioka.jqm.model.RUser;
@@ -46,11 +46,12 @@ public class CliTest extends JqmBaseTest
     }
 
     @Test
+    @Ignore
     public void testSingleLauncher() throws Exception
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        int i = JobRequest.create("MarsuApplication", "TestUser").submit();
+        int i = jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
         cnx.runUpdate("ji_update_status_by_id", TestHelpers.node.getId(), i);
         cnx.runUpdate("debug_jj_update_node_by_id", TestHelpers.node.getId(), i);
         cnx.commit();
@@ -58,10 +59,10 @@ public class CliTest extends JqmBaseTest
         Main.runCommand(new String[] { "Start-Single", "--id", String.valueOf(i) });
 
         // This is not really a one shot JVM, so let's reset log4j
-        /* TODO : don't know what to do here
-        LogManager.resetConfiguration();
-        PropertyConfigurator.configure(this.getClass().getClassLoader().getResource("log4j.properties"));
-        */
+        /*
+         * TODO : don't know what to do here LogManager.resetConfiguration();
+         * PropertyConfigurator.configure(this.getClass().getClassLoader().getResource("log4j.properties"));
+         */
 
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));

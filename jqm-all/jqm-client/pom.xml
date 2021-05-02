@@ -22,6 +22,6 @@
     <modules>
         <module>jqm-api-client-core</module>
         <module>jqm-api-client-jersey</module>
-        <module>jqm-api-client-hibernate</module>
+        <module>jqm-api-client-jdbc</module>
     </modules>
 </project>

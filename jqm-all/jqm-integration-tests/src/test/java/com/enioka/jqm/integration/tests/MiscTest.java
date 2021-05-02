@@ -25,17 +25,8 @@ import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang.StringUtils;
-import org.junit.Assert;
-import org.junit.Assume;
-import org.junit.Test;
-
 import com.enioka.admin.MetaService;
 import com.enioka.api.admin.JndiObjectResourceDto;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.engine.JqmEngine;
 import com.enioka.jqm.engine.JqmInitErrorTooSoon;
@@ -44,6 +35,12 @@ import com.enioka.jqm.service.MultiplexPrintStream;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 import com.enioka.jqm.xml.XmlJobDefParser;
+
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.StringUtils;
+import org.junit.Assert;
+import org.junit.Assume;
+import org.junit.Test;
 
 public class MiscTest extends JqmBaseTest
 {
@@ -55,7 +52,7 @@ public class MiscTest extends JqmBaseTest
 
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest.create("MarsuApplication", "TestUser").setEmail("test@jqm.com").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").setEmail("test@jqm.com").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx); // Need time for async mail sending.
@@ -88,9 +85,8 @@ public class MiscTest extends JqmBaseTest
                 "Marsu-Application-nnnnnnnn-nnnnnn-nnnnnnnnnn-nnNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNnn-nnnnnnnnn", null, "Franquin",
                 "ModuleMachin", "other", "other", true, cnx);
 
-        JobRequest j = new JobRequest("Marsu-Application-nnnnnnnn-nnnnnn-nnnnnnnnnn-nnNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNnn-nnnnnnnnn",
-                "TestUser");
-        JqmClientFactory.getClient().enqueue(j);
+        jqmClient.newJobRequest("Marsu-Application-nnnnnnnn-nnnnnn-nnnnnnnnnn-nnNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNnn-nnnnnnnnn",
+                "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -108,7 +104,8 @@ public class MiscTest extends JqmBaseTest
     @Test
     public void testJobWithPersistenceUnit() throws Exception
     {
-        // The PU test expects an HSQLDB database which does not exist when running the tests on other databases
+        // The PU test expects an HSQLDB database which does not exist when running the
+        // tests on other databases
         AssumeHsqldb();
 
         CreationTools.createDatabaseProp("jdbc/test", "org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:testdbmarsu", "SA", "", cnx,
@@ -118,7 +115,7 @@ public class MiscTest extends JqmBaseTest
 
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-em/target/test.jar", TestHelpers.qVip, 42, "jqm-test-em",
                 null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest.create("jqm-test-em", "TestUser").submit();
+        jqmClient.newJobRequest("jqm-test-em", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(2, 10000, cnx);
@@ -146,8 +143,7 @@ public class MiscTest extends JqmBaseTest
         XmlJobDefParser.parse("target/payloads/jqm-test-xml/xmlstop.xml", cnx);
         cnx.commit();
 
-        JobRequest j = new JobRequest("CompatHibApi", "TestUser");
-        JqmClientFactory.getClient().enqueue(j);
+        jqmClient.newJobRequest("CompatHibApi", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -202,7 +198,7 @@ public class MiscTest extends JqmBaseTest
                 null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
 
         /// Create a running job that should be cleaned at startup
-        int i1 = JqmClientFactory.getClient().enqueue("jqm-test-em", "test");
+        int i1 = jqmClient.enqueue("jqm-test-em", "test");
         cnx.runUpdate("ji_update_status_by_id", TestHelpers.node.getId(), i1);
         cnx.runUpdate("jj_update_run_by_id", i1);
         cnx.commit();
@@ -221,7 +217,7 @@ public class MiscTest extends JqmBaseTest
                 null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
 
         // Create a running job that should be cleaned at startup
-        int i = JqmClientFactory.getClient().enqueue("jqm-test-em", "test");
+        int i = jqmClient.enqueue("jqm-test-em", "test");
         cnx.runUpdate("ji_update_status_by_id", TestHelpers.node.getId(), i);
         cnx.commit();
 
@@ -239,20 +235,20 @@ public class MiscTest extends JqmBaseTest
                 "jqm-test-kill", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
         cnx.commit();
 
-        JqmClientFactory.getClient().enqueue("jqm-test-kill", "test");
-        JqmClientFactory.getClient().enqueue("jqm-test-kill", "test");
-        JqmClientFactory.getClient().enqueue("jqm-test-kill", "test");
-        JqmClientFactory.getClient().enqueue("jqm-test-kill", "test");
-        JqmClientFactory.getClient().enqueue("jqm-test-kill", "test");
+        jqmClient.enqueue("jqm-test-kill", "test");
+        jqmClient.enqueue("jqm-test-kill", "test");
+        jqmClient.enqueue("jqm-test-kill", "test");
+        jqmClient.enqueue("jqm-test-kill", "test");
+        jqmClient.enqueue("jqm-test-kill", "test");
 
         jqmlogger.debug("COUNT RUNNING " + cnx.runSelectSingle("ji_select_count_running", Integer.class));
         jqmlogger.debug("COUNT ALL     " + cnx.runSelectSingle("ji_select_count_all", Integer.class));
         Assert.assertEquals(0,
-                Query.create().setQueryLiveInstances(true).setQueryHistoryInstances(false)
-                        .addStatusFilter(com.enioka.jqm.api.client.core.State.RUNNING)
-                        .addStatusFilter(com.enioka.jqm.api.client.core.State.ENDED).run().size());
-        Assert.assertEquals(5, Query.create().setQueryLiveInstances(true).setQueryHistoryInstances(false)
-                .addStatusFilter(com.enioka.jqm.api.client.core.State.SUBMITTED).run().size());
+                jqmClient.newQuery().setQueryLiveInstances(true).setQueryHistoryInstances(false)
+                        .addStatusFilter(com.enioka.jqm.client.api.State.RUNNING).addStatusFilter(com.enioka.jqm.client.api.State.ENDED)
+                        .invoke().size());
+        Assert.assertEquals(5, jqmClient.newQuery().setQueryLiveInstances(true).setQueryHistoryInstances(false)
+                .addStatusFilter(com.enioka.jqm.client.api.State.SUBMITTED).invoke().size());
     }
 
     // TODO: Need to fix the hack inside of EngineCallback.onNodeConfigurationRead()
@@ -265,7 +261,7 @@ public class MiscTest extends JqmBaseTest
         Helpers.setSingleParam("logFilePerLaunch", "true", cnx);
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        int i = JobRequest.create("MarsuApplication", "TestUser").submit();
+        int i = jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
 
@@ -285,7 +281,7 @@ public class MiscTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "pyl.Nothing", null, "com.enioka.jqm:jqm-test-pyl-nodep:1.3.2", TestHelpers.qVip, 42,
                 "jqm-test-maven", null, "Franquin", "ModuleMachin", "other", "other", false, cnx, null, false, null, false, PathType.MAVEN);
-        JobRequest.create("jqm-test-maven", null).submit();
+        jqmClient.newJobRequest("jqm-test-maven", null).enqueue();
         addAndStartEngine();
 
         TestHelpers.waitFor(1, 10000, cnx);

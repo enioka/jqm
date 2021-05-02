@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.enioka.jqm.api.client.core.JqmClient;
+import com.enioka.jqm.client.api.JqmClient;
 import com.enioka.jqm.model.JobDefParameter;
 import com.enioka.jqm.model.JobDef.PathType;
 
@@ -52,7 +52,7 @@ public class TestJobDefinition
      * This creates a job definition from a given class. This class must be present inside the current class path, and will be loaded by the
      * engine with the current class loader. This means that most specific class loading option (child first, ...) are mostly useless in
      * this case.
-     * 
+     *
      * @param name
      *            the name to give the new job definition. This is the name that is later reused in client APIs, such as
      *            {@link JqmClient#enqueue(String, String)}.
@@ -76,7 +76,7 @@ public class TestJobDefinition
     /**
      * Create a job definition from a class inside an existing jar file. This creates the exact replica of what happens inside a production
      * JQM cluster, including taking into account all the various class loading options (child first, external library directory...).
-     * 
+     *
      * @param name
      *            the name to give the new job definition. This is the name that is later reused in client APIs, such as
      *            {@link JqmClient#enqueue(String, String)}.
@@ -166,7 +166,7 @@ public class TestJobDefinition
 
     /**
      * The jobs will run on this queue. If no set (or set to null) will run on the default queue.
-     * 
+     *
      * @param queueName
      */
     public TestJobDefinition setQueueName(String queueName)
@@ -204,7 +204,7 @@ public class TestJobDefinition
 
     /**
      * Add a parameter.
-     * 
+     *
      * @param key
      *            must be unique
      * @param value
@@ -222,7 +222,7 @@ public class TestJobDefinition
 
     /**
      * An optional classifier.
-     * 
+     *
      * @param application
      */
     public TestJobDefinition setApplication(String application)
@@ -238,7 +238,7 @@ public class TestJobDefinition
 
     /**
      * An optional classifier.
-     * 
+     *
      * @param module
      */
     public TestJobDefinition setModule(String module)
@@ -254,7 +254,7 @@ public class TestJobDefinition
 
     /**
      * An optional classifier.
-     * 
+     *
      * @param keyword1
      */
     public TestJobDefinition setKeyword1(String keyword1)
@@ -270,7 +270,7 @@ public class TestJobDefinition
 
     /**
      * An optional classifier.
-     * 
+     *
      * @param keyword2
      */
     public TestJobDefinition setKeyword2(String keyword2)
@@ -286,7 +286,7 @@ public class TestJobDefinition
 
     /**
      * An optional classifier.
-     * 
+     *
      * @param keyword3
      */
     public TestJobDefinition setKeyword3(String keyword3)
@@ -304,7 +304,7 @@ public class TestJobDefinition
      * By default jobs run inside a dedicated class loader thrown out after the run. By setting this to a non null value, this job will run
      * inside a re-used class loader. All jobs using the same specificIsolationContext share the same class loader. See documentation on
      * class loading inside JQM.
-     * 
+     *
      * @param specificIsolationContext
      *            name of the class loader to use or null to use default behaviour.
      */
@@ -323,7 +323,7 @@ public class TestJobDefinition
      * This enables child-first class loading.<br>
      * Note that if the payload is actually inside your unit test class path, this won't do much. See documentation on class loading inside
      * JQM.
-     * 
+     *
      * @param childFirstClassLoader
      */
     public TestJobDefinition setChildFirstClassLoader(boolean childFirstClassLoader)
@@ -349,7 +349,7 @@ public class TestJobDefinition
     /**
      * This prevents the given class from being loaded by a parent class loader. Id es: if the class is not directly available to the
      * payload (inside the payload libraries for example) it will not be loaded.
-     * 
+     *
      * @param canonicalClassName
      */
     public TestJobDefinition addHiddenJavaClasses(String canonicalClassName)

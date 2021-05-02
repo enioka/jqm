@@ -3,7 +3,7 @@ package com.enioka.jqm.integration.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
@@ -20,7 +20,7 @@ public class EngineChildFirstCLTest extends JqmBaseTest
 
         CreationTools.createJobDef(null, true, "pyl.EngineChildFirstCL", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 -1, "EngineChildFirstCL", null, null, null, null, null, false, cnx, null, false);
-        JobRequest.create("EngineChildFirstCL", null).submit();
+        jqmClient.newJobRequest("EngineChildFirstCL", null).enqueue();
 
         TestHelpers.waitFor(1, 10000, cnx);
 
@@ -38,7 +38,7 @@ public class EngineChildFirstCLTest extends JqmBaseTest
 
         CreationTools.createJobDef(null, true, "pyl.EngineChildFirstCL", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 -1, "EngineChildFirstCL", null, null, null, null, null, false, cnx, null, true);
-        JobRequest.create("EngineChildFirstCL", null).submit();
+        jqmClient.newJobRequest("EngineChildFirstCL", null).enqueue();
 
         TestHelpers.waitFor(1, 10000, cnx);
 

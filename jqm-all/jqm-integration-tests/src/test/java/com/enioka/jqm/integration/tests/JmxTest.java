@@ -30,7 +30,7 @@ import javax.management.remote.JMXServiceURL;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.JqmEngineMBean;
 import com.enioka.jqm.engine.QueuePollerMBean;
 import com.enioka.jqm.runner.java.api.JavaJobInstanceTrackerMBean;
@@ -44,7 +44,7 @@ public class JmxTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "pyl.KillMe", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip, 42,
                 "KillApp", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        int i = JobRequest.create("KillApp", "TestUser").submit();
+        int i = jqmClient.newJobRequest("KillApp", "TestUser").enqueue();
 
         // Set JMX server on free ports
         ServerSocket s1 = new ServerSocket(0);

@@ -3,8 +3,7 @@ package com.enioka.jqm.integration.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.JobDef;
 import com.enioka.jqm.test.helpers.CreationTools;
@@ -19,7 +18,7 @@ public class ExternalTest extends JqmBaseTest
                 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
         JobDef.setExternal(cnx, jdId);
         cnx.commit();
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
@@ -36,7 +35,7 @@ public class ExternalTest extends JqmBaseTest
         int i = JqmSimpleTest.create(cnx, "pyl.KillMeNot").setExternal().expectNonOk(0).expectOk(0).run(this);
         TestHelpers.waitForRunning(1, 20000, cnx);
 
-        JqmClientFactory.getClient().killJob(i);
+        jqmClient.killJob(i);
         TestHelpers.waitFor(1, 20000, cnx);
         Assert.assertEquals(0, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(1, TestHelpers.getNonOkCount(cnx));

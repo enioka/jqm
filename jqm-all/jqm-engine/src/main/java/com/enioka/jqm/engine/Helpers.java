@@ -32,7 +32,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
-import com.enioka.jqm.api.client.core.JqmClientFactory;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.DbManager;
@@ -125,15 +124,15 @@ public final class Helpers
      * Create a Deliverable inside the database that will track a file created by a JobInstance Must be called from inside a transaction
      *
      * @param path
-     *                             FilePath (relative to a root directory - cf. Node)
+     *            FilePath (relative to a root directory - cf. Node)
      * @param originalFileName
-     *                             FileName
+     *            FileName
      * @param fileFamily
-     *                             File family (may be null). E.g.: "daily report"
+     *            File family (may be null). E.g.: "daily report"
      * @param jobId
-     *                             Job Instance ID
+     *            Job Instance ID
      * @param cnx
-     *                             the DbConn to use.
+     *            the DbConn to use.
      */
     static int createDeliverable(String path, String originalFileName, String fileFamily, Integer jobId, DbConn cnx)
     {
@@ -234,9 +233,9 @@ public final class Helpers
      * Call {@link #updateConfiguration(EntityManager)} before to be sure if necessary.
      *
      * @param nodeName
-     *                     name of the node that should be created or updated (if incompletely defined only)
+     *            name of the node that should be created or updated (if incompletely defined only)
      * @param em
-     *                     an EntityManager on which a transaction will be opened.
+     *            an EntityManager on which a transaction will be opened.
      */
     public static void updateNodeConfiguration(String nodeName, DbConn cnx, int port)
     {
@@ -363,7 +362,7 @@ public final class Helpers
      * @param cnx
      * @param login
      * @param password
-     *                        the raw password. it will be hashed.
+     *            the raw password. it will be hashed.
      * @param description
      * @param roles
      */

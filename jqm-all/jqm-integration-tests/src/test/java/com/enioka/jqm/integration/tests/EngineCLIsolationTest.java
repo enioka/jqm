@@ -3,7 +3,7 @@ package com.enioka.jqm.integration.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
@@ -19,7 +19,7 @@ public class EngineCLIsolationTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "com.enioka.jqm.TestCLIsolation.TestSet", null,
                 "jqm-tests/jqm-test-cl-isolation/target/test.jar", TestHelpers.qVip, -1, "TestSet", null, null, null, null, null, false,
                 cnx, specificIsolationContext);
-        JobRequest.create("TestSet", null).submit();
+        jqmClient.newJobRequest("TestSet", null).enqueue();
     }
 
     /**
@@ -30,7 +30,7 @@ public class EngineCLIsolationTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "com.enioka.jqm.TestCLIsolation.TestGet", null,
                 "jqm-tests/jqm-test-cl-isolation/target/test.jar", TestHelpers.qVip, -1, "TestGet", null, null, null, null, null, false,
                 cnx, specificIsolationContext);
-        JobRequest.create("TestGet", null).submit();
+        jqmClient.newJobRequest("TestGet", null).enqueue();
     }
 
     /**
@@ -114,7 +114,7 @@ public class EngineCLIsolationTest extends JqmBaseTest
         // Use get job from test-pyl jar
         CreationTools.createJobDef(null, true, "pyl.EngineCLIsolationGet", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 -1, "EngineCLIsolationGet", null, null, null, null, null, false, cnx);
-        JobRequest.create("EngineCLIsolationGet", null).submit();
+        jqmClient.newJobRequest("EngineCLIsolationGet", null).enqueue();
         TestHelpers.waitFor(2, 10000, cnx);
 
         Assert.assertEquals(2, TestHelpers.getOkCount(cnx));
@@ -161,7 +161,7 @@ public class EngineCLIsolationTest extends JqmBaseTest
         // Use get job from test-pyl jar
         CreationTools.createJobDef(null, true, "pyl.EngineCLIsolationGet", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip,
                 -1, "EngineCLIsolationGet", null, null, null, null, null, false, cnx);
-        JobRequest.create("EngineCLIsolationGet", null).submit();
+        jqmClient.newJobRequest("EngineCLIsolationGet", null).enqueue();
         TestHelpers.waitFor(2, 10000, cnx);
 
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
@@ -240,7 +240,7 @@ public class EngineCLIsolationTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiStaticInjection", null, "jqm-tests/jqm-test-pyl/target/test.jar",
                 TestHelpers.qVip, -1, "TestSet", null, null, null, null, null, false, cnx, "mycontext");
 
-        JobRequest.create("TestSet", null).submit();
+        jqmClient.newJobRequest("TestSet", null).enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);

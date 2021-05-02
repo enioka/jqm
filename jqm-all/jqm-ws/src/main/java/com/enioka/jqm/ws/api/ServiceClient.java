@@ -32,17 +32,17 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
-import com.enioka.jqm.api.client.core.Deliverable;
-import com.enioka.jqm.api.client.core.JobDef;
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClient;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.Queue;
-import com.enioka.jqm.api.client.core.QueueStatus;
-import com.enioka.jqm.api.client.core.SelfDestructFileStream;
-import com.enioka.jqm.api.client.core.State;
+import com.enioka.jqm.client.api.Deliverable;
+import com.enioka.jqm.client.api.JobDef;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.api.Query;
+import com.enioka.jqm.client.api.Queue;
+import com.enioka.jqm.client.api.QueueStatus;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
+import com.enioka.jqm.client.shared.SelfDestructFileStream;
+import com.enioka.jqm.ws.api.dto.JobRequestJaxbDto;
+import com.enioka.jqm.ws.api.dto.QueryJaxbDto;
 import com.enioka.jqm.ws.plumbing.HttpCache;
 
 import org.osgi.service.component.annotations.Activate;
@@ -80,11 +80,13 @@ public class ServiceClient
     @Path("ji")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public JobInstance enqueueObject(JobRequest jd)
+    public JobInstance enqueueObject(JobRequestJaxbDto jd)
     {
-        int i = JqmClientFactory.getClient().enqueue(jd);
+        JobRequest jr = JqmClientFactory.getClient().newJobRequest(null, null);
+        jd.copyTo(jr);
+        int i = jr.enqueue();
 
-        return getJi(jd, i);
+        return jd.toJobInstance(i);
     }
 
     // Not exposed. Client side work.
@@ -276,21 +278,16 @@ public class ServiceClient
         return JqmClientFactory.getClient().getUserActiveJobs(userName);
     }
 
-    // Not exposed directly - the Query object passed as parameter actually contains
-    // results...
-
-    public List<JobInstance> getJobs(Query query)
-    {
-        return JqmClientFactory.getClient().getJobs(query);
-    }
-
     @Path("ji/query")
     @Consumes({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
     @POST
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
-    public Query getJobsQuery(Query query)
+    public QueryJaxbDto getJobsQuery(QueryJaxbDto query)
     {
-        query.run();
+        Query q = JqmClientFactory.getClient().newQuery();
+        query.copyTo(q);
+        q.invoke();
+        query.updateResults(q);
         return query;
     }
 
@@ -453,24 +450,6 @@ public class ServiceClient
         // Nothing to do.
     }
 
-    private JobInstance getJi(JobRequest jd, int i)
-    {
-        JobInstance ji = new JobInstance();
-        ji.setId(i);
-        ji.setKeyword1(jd.getKeyword1());
-        ji.setKeyword2(jd.getKeyword2());
-        ji.setKeyword3(jd.getKeyword3());
-        ji.setParameters(jd.getParameters());
-        ji.setParent(jd.getParentID());
-        ji.setSessionID(jd.getSessionID());
-        ji.setState(State.SUBMITTED);
-        ji.setUser(jd.getUser());
-        ji.setPosition(Long.MAX_VALUE);
-        ji.setApplication(jd.getApplication());
-
-        return ji;
-    }
-
     @Path("jd")
     @GET
     @Produces({ MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON })
@@ -506,7 +485,7 @@ public class ServiceClient
     @HttpCache("public, max-age=3600")
     public Query getEmptyQuery()
     {
-        return Query.create();
+        return JqmClientFactory.getClient().newQuery();
     }
 
     @Path("jr")
@@ -515,7 +494,7 @@ public class ServiceClient
     @HttpCache("public, max-age=3600")
     public JobRequest getEmptyJobRequest()
     {
-        return new JobRequest("appName", "rsapi user");
+        return JqmClientFactory.getClient().newJobRequest("appName", "rsapi user");
     }
 
 }

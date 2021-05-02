@@ -21,11 +21,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.enioka.jqm.api.client.core.Deliverable;
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
+import com.enioka.jqm.client.api.Deliverable;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.JobDef.PathType;
 import com.enioka.jqm.test.helpers.CreationTools;
@@ -44,7 +42,7 @@ public class ShellRunnerTest extends JqmBaseTest
 
         CreationTools.createJobDef("test job", true, "none", new HashMap<>(), "set", TestHelpers.qNormal, 0, "TestApp1", null, "module1",
                 "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
-        JobRequest.create("TestApp1", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
@@ -69,8 +67,8 @@ public class ShellRunnerTest extends JqmBaseTest
                 "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
         CreationTools.createJobDef("failing test job", true, "none", new HashMap<>(), command2, TestHelpers.qNormal, 0, "TestApp2", null,
                 "module1", "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
-        JobRequest.create("TestApp1", "TestUser").submit();
-        JobRequest.create("TestApp2", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
+        jqmClient.newJobRequest("TestApp2", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(2, 20000, cnx);
@@ -90,7 +88,7 @@ public class ShellRunnerTest extends JqmBaseTest
 
         CreationTools.createJobDef("test job", true, "none", new HashMap<>(), command1, TestHelpers.qNormal, 0, "TestApp1", null, "module1",
                 "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
-        JobRequest.create("TestApp1", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
@@ -108,7 +106,7 @@ public class ShellRunnerTest extends JqmBaseTest
 
         CreationTools.createJobDef("test job", true, "none", new HashMap<>(), command1, TestHelpers.qNormal, 0, "TestApp1", null, "module1",
                 "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.POWERSHELLCOMMAND);
-        JobRequest.create("TestApp1", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
@@ -135,7 +133,7 @@ public class ShellRunnerTest extends JqmBaseTest
 
         CreationTools.createJobDef("test job", true, "none", args, command1, TestHelpers.qNormal, 0, "TestApp1", null, "module1", "kw1",
                 "kw2", null, false, cnx, null, false, null, false, PathType.DIRECTEXECUTABLE);
-        JobRequest.create("TestApp1", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 20000, cnx);
@@ -161,12 +159,12 @@ public class ShellRunnerTest extends JqmBaseTest
                     "module1", "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
         }
 
-        int i = JobRequest.create("TestApp1", "TestUser").submit();
+        int i = jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
         Helpers.setSingleParam("internalPollingPeriodMs", "500", cnx);
 
         addAndStartEngine();
         TestHelpers.waitForRunning(1, 20000, cnx);
-        JqmClientFactory.getClient().killJob(i);
+        jqmClient.killJob(i);
         TestHelpers.waitFor(1, 20000, cnx);
 
         Assert.assertEquals(0, TestHelpers.getOkCount(cnx));
@@ -208,7 +206,7 @@ public class ShellRunnerTest extends JqmBaseTest
                     "module1", "kw1", "kw2", null, false, cnx, null, false, null, false, PathType.DEFAULTSHELLCOMMAND);
         }
 
-        int i = JobRequest.create("TestApp1", "TestUser").submit();
+        int i = jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(2, 20000, cnx);
@@ -216,7 +214,7 @@ public class ShellRunnerTest extends JqmBaseTest
         Assert.assertEquals(2, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
-        List<JobInstance> jis = Query.create().setParentId(i).run();
+        List<JobInstance> jis = jqmClient.newQuery().setParentId(i).invoke();
         Assert.assertEquals(1, jis.size());
     }
 
@@ -237,7 +235,7 @@ public class ShellRunnerTest extends JqmBaseTest
                     PathType.DEFAULTSHELLCOMMAND);
         }
 
-        int i = JobRequest.create("TestApp1", "TestUser").submit();
+        int i = jqmClient.newJobRequest("TestApp1", "TestUser").enqueue();
         Helpers.setSingleParam("internalPollingPeriodMs", "500", cnx);
 
         addAndStartEngine();
@@ -246,7 +244,7 @@ public class ShellRunnerTest extends JqmBaseTest
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
-        List<Deliverable> deliverables = JqmClientFactory.getClient().getJobDeliverables(i);
+        List<Deliverable> deliverables = jqmClient.getJobDeliverables(i);
         Assert.assertEquals(1, deliverables.size());
         Assert.assertEquals("test.txt", deliverables.get(0).getFileFamily());
     }

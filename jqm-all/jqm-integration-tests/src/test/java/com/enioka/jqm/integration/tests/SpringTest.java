@@ -8,7 +8,7 @@ import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 import com.enioka.jqm.xml.JqmXmlException;
@@ -41,11 +41,11 @@ public class SpringTest extends JqmBaseTest
         addAndStartEngine();
 
         // First job creates the database, so let it finish (test artifact).
-        JobRequest.create("TestSpring1", null).submit();
+        jqmClient.newJobRequest("TestSpring1", null).enqueue();
         TestHelpers.waitFor(1, 30000, cnx);
 
-        JobRequest.create("TestSpring1", null).submit();
-        JobRequest.create("TestSpring1", null).submit();
+        jqmClient.newJobRequest("TestSpring1", null).enqueue();
+        jqmClient.newJobRequest("TestSpring1", null).enqueue();
 
         TestHelpers.waitFor(3, 60000, cnx);
 
@@ -73,11 +73,11 @@ public class SpringTest extends JqmBaseTest
             Assert.fail();
         }
 
-        JobRequest.create("Job1", null).addParameter("key1", "value1").submit();
+        jqmClient.newJobRequest("Job1", null).addParameter("key1", "value1").enqueue();
         addAndStartEngine();
 
         TestHelpers.waitFor(1, 10000, cnx);
-        JobRequest.create("Job2", null).addParameter("key1", "valueKey1FromRequestNotDefinition").submit();
+        jqmClient.newJobRequest("Job2", null).addParameter("key1", "valueKey1FromRequestNotDefinition").enqueue();
 
         TestHelpers.waitFor(3, 10000, cnx);
         Assert.assertEquals(3, TestHelpers.getOkCount(cnx));

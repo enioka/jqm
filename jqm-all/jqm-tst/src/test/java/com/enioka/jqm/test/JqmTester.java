@@ -7,7 +7,7 @@ import java.util.Properties;
 import org.hsqldb.Server;
 import org.hsqldb.jdbc.JDBCDataSource;
 
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.engine.JqmSingleRunner;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
@@ -122,13 +122,13 @@ public class JqmTester
         s.stop();
         s.shutdown();
         cnx.close();
-        JqmClientFactory.resetClient();
+        // JqmClientFactory.resetClient();
         JqmClientFactory.setProperties(new Properties());
     }
 
-    public com.enioka.jqm.api.client.core.JobInstance run()
+    public com.enioka.jqm.client.api.JobInstance run()
     {
-        com.enioka.jqm.api.client.core.JobInstance res = JqmSingleRunner.run(ji);
+        com.enioka.jqm.client.api.JobInstance res = JqmSingleRunner.run(ji);
 
         close();
         return res;

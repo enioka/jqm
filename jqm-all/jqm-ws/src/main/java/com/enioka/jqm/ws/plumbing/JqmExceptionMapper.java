@@ -20,7 +20,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.ext.ExceptionMapper;
 
-import com.enioka.jqm.api.client.core.JqmInvalidRequestException;
+import com.enioka.jqm.client.api.JqmInvalidRequestException;
 import com.enioka.jqm.ws.api.ErrorDto;
 
 //@Provider

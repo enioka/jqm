@@ -8,9 +8,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.JqmInvalidRequestException;
-import com.enioka.jqm.api.client.core.Query;
+import com.enioka.jqm.client.api.JqmInvalidRequestException;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.integration.tests.ClientApiTest;
 import com.enioka.jqm.model.Node;
@@ -57,6 +56,7 @@ public class WsClientClearTest extends ClientApiTest
     @Test(expected = JqmInvalidRequestException.class)
     public void testBug292()
     {
-        Query.create().setQueryHistoryInstances(false).setQueryLiveInstances(false).run();
+        // TODO: jersey !
+        JqmClientFactory.getClient().newQuery().setQueryHistoryInstances(false).setQueryLiveInstances(false).invoke();
     }
 }

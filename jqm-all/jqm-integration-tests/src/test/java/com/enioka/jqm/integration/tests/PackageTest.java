@@ -15,7 +15,7 @@
  */
 package com.enioka.jqm.integration.tests;
 
-import com.enioka.jqm.api.client.core.JobRequest;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
@@ -32,7 +32,7 @@ public class PackageTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemavennopom/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -46,7 +46,7 @@ public class PackageTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemavennopomlib/target/test.jar", TestHelpers.qVip,
                 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -60,7 +60,7 @@ public class PackageTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemavenjarinlib/target/test.jar", TestHelpers.qVip,
                 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -74,7 +74,7 @@ public class PackageTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemavennolibdef/target/test.jar", TestHelpers.qVip,
                 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);

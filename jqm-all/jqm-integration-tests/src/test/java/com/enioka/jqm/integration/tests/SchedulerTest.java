@@ -8,11 +8,9 @@ import org.junit.Test;
 import com.enioka.admin.MetaService;
 import com.enioka.api.admin.JobDefDto;
 import com.enioka.api.admin.ScheduledJob;
-import com.enioka.jqm.api.client.core.JobDef;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.State;
+import com.enioka.jqm.client.api.JobDef;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.api.State;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
@@ -122,10 +120,10 @@ public class SchedulerTest extends JqmBaseTest
         int id = CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar",
                 TestHelpers.qVip, 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
 
-        int scheduleId = JobRequest.create("MarsuApplication", "test user").setRecurrence("* * * * *").addParameter("key1", "value1")
-                .submit();
+        int scheduleId = jqmClient.newJobRequest("MarsuApplication", "test user").setRecurrence("* * * * *").addParameter("key1", "value1")
+                .enqueue();
 
-        JobDef jd_client = JqmClientFactory.getClient().getJobDefinition("MarsuApplication");
+        JobDef jd_client = jqmClient.getJobDefinition("MarsuApplication");
         Assert.assertEquals(id, (int) jd_client.getId());
         Assert.assertEquals(1, jd_client.getSchedules().size());
         Assert.assertEquals(scheduleId, jd_client.getSchedules().get(0).getId());
@@ -139,12 +137,12 @@ public class SchedulerTest extends JqmBaseTest
         JobDefDto jd = MetaService.getJobDef(cnx, id);
         Assert.assertEquals(1, jd.getSchedules().size());
 
-        JqmClientFactory.getClient().removeRecurrence(scheduleId);
+        jqmClient.removeRecurrence(scheduleId);
 
         jd = MetaService.getJobDef(cnx, id);
         Assert.assertEquals(0, jd.getSchedules().size());
 
-        Assert.assertTrue(Query.create().run().get(0).isFromSchedule());
+        Assert.assertTrue(jqmClient.newQuery().invoke().get(0).isFromSchedule());
     }
 
     @Test // Commented - waiting for one minute is long.
@@ -158,19 +156,19 @@ public class SchedulerTest extends JqmBaseTest
         runAt.set(Calendar.SECOND, 0);
         runAt.add(Calendar.MINUTE, 1);
 
-        JobRequest.create("MarsuApplication", "testuser").setRunAfter(runAt).submit();
+        jqmClient.newJobRequest("MarsuApplication", "testuser").setRunAfter(runAt).enqueue();
         Assert.assertEquals(1, TestHelpers.getQueueAllCount(cnx));
-        Assert.assertEquals(State.SCHEDULED, Query.create().setQueryLiveInstances(true).run().get(0).getState());
-        Assert.assertTrue(Query.create().setQueryLiveInstances(true).run().get(0).isFromSchedule());
-        Assert.assertEquals(runAt, Query.create().setQueryLiveInstances(true).run().get(0).getRunAfter());
+        Assert.assertEquals(State.SCHEDULED, jqmClient.newQuery().setQueryLiveInstances(true).invoke().get(0).getState());
+        Assert.assertTrue(jqmClient.newQuery().setQueryLiveInstances(true).invoke().get(0).isFromSchedule());
+        Assert.assertEquals(runAt, jqmClient.newQuery().setQueryLiveInstances(true).invoke().get(0).getRunAfter());
 
         addAndStartEngine();
 
         TestHelpers.waitFor(1, 150000, cnx);
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
 
-        Assert.assertTrue(Query.create().run().get(0).isFromSchedule());
-        Assert.assertTrue(Query.create().run().get(0).getBeganRunningDate().after(runAt));
+        Assert.assertTrue(jqmClient.newQuery().invoke().get(0).isFromSchedule());
+        Assert.assertTrue(jqmClient.newQuery().invoke().get(0).getBeganRunningDate().after(runAt));
     }
 
     @Test
@@ -179,16 +177,16 @@ public class SchedulerTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
 
-        int i = JobRequest.create("MarsuApplication", "testuser").startHeld().submit();
+        int i = jqmClient.newJobRequest("MarsuApplication", "testuser").startHeld().enqueue();
         addAndStartEngine();
 
         // Should not run.
         sleepms(1000);
         Assert.assertEquals(1, TestHelpers.getQueueAllCount(cnx));
-        Assert.assertEquals(State.HOLDED, Query.create().setQueryLiveInstances(true).run().get(0).getState());
+        Assert.assertEquals(State.HOLDED, jqmClient.newQuery().setQueryLiveInstances(true).invoke().get(0).getState());
 
         // Resume at will.
-        JqmClientFactory.getClient().resumeQueuedJob(i);
+        jqmClient.resumeQueuedJob(i);
         TestHelpers.waitFor(1, 10000, cnx);
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
     }

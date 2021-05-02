@@ -3,9 +3,9 @@ package com.enioka.jqm.engine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.JqmInvalidRequestException;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JqmInvalidRequestException;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.DbManager;
@@ -42,7 +42,7 @@ public class JqmSingleRunner
      *
      * @param job
      * @param logFile
-     *                    the file to which output the run log. if null, only stdout will be used.
+     *            the file to which output the run log. if null, only stdout will be used.
      * @return the result of the run
      */
     public static JobInstance run(com.enioka.jqm.model.JobInstance job)

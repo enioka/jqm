@@ -42,8 +42,8 @@ import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.SecurityContext;
 
 import com.enioka.admin.JqmAdminApiException;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.NoResultException;
 import com.enioka.jqm.model.Deliverable;
@@ -263,7 +263,7 @@ public class ServiceSimple
             user = security.getUserPrincipal().getName();
         }
 
-        JobRequest jd = new JobRequest(applicationName, user);
+        JobRequest jd = JqmClientFactory.getClient().newJobRequest(applicationName, user);
 
         jd.setModule(module);
         jd.setEmail(mail);
@@ -289,7 +289,7 @@ public class ServiceSimple
             log.trace("Adding a parameter: " + name + " - " + value);
         }
 
-        Integer i = JqmClientFactory.getClient().enqueue(jd);
+        Integer i = jd.enqueue();
         return i.toString();
     }
 

@@ -15,10 +15,9 @@
  */
 package com.enioka.jqm.ws.api;
 
-import java.io.Closeable;
 import java.util.Properties;
 
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
 

@@ -32,22 +32,22 @@ import javax.naming.spi.NamingManager;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.State;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.api.State;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
 public class JndiTest extends JqmBaseTest
 {
     // @Test
-    // NOT AN AUTO TEST: this requires to have MQ Series jars which are not libre software!
+    // NOT AN AUTO TEST: this requires to have MQ Series jars which are not libre
+    // software!
     public void testJmsWmq() throws Exception
     {
         CreationTools.createJobDef(null, true, "com.enioka.jqm.testpackages.SuperTestPayload", null,
                 "jqm-tests/jqm-test-jndijms-wmq/target/test.jar", TestHelpers.qVip, 42, "Jms", "Franquin", "ModuleMachin", "other1",
                 "other2", "other3", false, cnx);
-        JobRequest.create("Jms", "TestUser").addParameter("p1", "1").addParameter("p2", "2").submit();
+        jqmClient.newJobRequest("Jms", "TestUser").addParameter("p1", "1").addParameter("p2", "2").enqueue();
 
         // Create JMS JNDI references for use by the test jar
         CreationTools.createJndiQueueMQSeries(cnx, "jms/testqueue", "test Queue", "Q.GEO.OUT", null);
@@ -66,7 +66,7 @@ public class JndiTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "com.enioka.jqm.testpackages.SuperTestPayload", null,
                 "jqm-tests/jqm-test-jndijms-amq/target/test.jar", TestHelpers.qVip, 42, "Jms", null, "Franquin", "ModuleMachin", "other1",
                 "other2", false, cnx);
-        JobRequest.create("Jms", "TestUser").submit();
+        jqmClient.newJobRequest("Jms", "TestUser").enqueue();
 
         // Create JMS JNDI references for use by the test jar
         CreationTools.createJndiQueueActiveMQ(cnx, "jms/testqueue", "test queue", "Q.TEST", null);
@@ -87,7 +87,7 @@ public class JndiTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "com.enioka.jqm.testpackages.SuperTestPayload", null,
                 "jqm-tests/jqm-test-jndijms-amq/target/test.jar", TestHelpers.qVip, 42, "Jms", null, "Franquin", "ModuleMachin", "other1",
                 "other2", false, cnx);
-        JobRequest.create("Jms", "TestUser").submit();
+        jqmClient.newJobRequest("Jms", "TestUser").enqueue();
 
         // Create JMS JNDI references for use by the test jar
         CreationTools.createJndiQueueActiveMQ(cnx, "jms/testqueue", "test queue", "Q.TEST", null);
@@ -100,7 +100,7 @@ public class JndiTest extends JqmBaseTest
 
         Assert.assertEquals(0, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(1, TestHelpers.getNonOkCount(cnx));
-        Assert.assertEquals(State.CRASHED, Query.create().run().get(0).getState());
+        Assert.assertEquals(State.CRASHED, jqmClient.newQuery().invoke().get(0).getState());
     }
 
     @Test
@@ -182,7 +182,7 @@ public class JndiTest extends JqmBaseTest
 
         CreationTools.createJobDef(null, true, "pyl.JndiDb", null, "jqm-tests/jqm-test-pyl-nodep/target/test.jar", TestHelpers.qVip, 42,
                 "TestApp", null, "Test", "ModuleTest", "other", "other", false, cnx);
-        JobRequest.create("TestApp", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp", "TestUser").enqueue();
         TestHelpers.waitFor(1, 5000, cnx);
 
         TestHelpers.testOkCount(1, cnx);
@@ -205,7 +205,7 @@ public class JndiTest extends JqmBaseTest
         // Run the payload, it should leave an open conn at the end
         CreationTools.createJobDef(null, true, "pyl.JndiDbLeak", null, "jqm-tests/jqm-test-pyl-nodep/target/test.jar", TestHelpers.qVip, 42,
                 "TestApp", null, "Test", "ModuleTest", "other", "other", false, cnx);
-        JobRequest.create("TestApp", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp", "TestUser").enqueue();
         TestHelpers.waitFor(1, 5000, cnx);
 
         TestHelpers.testOkCount(1, cnx);
@@ -234,7 +234,7 @@ public class JndiTest extends JqmBaseTest
         // Sanity check: the leak hunter does not harm normal payloads.
         CreationTools.createJobDef(null, true, "pyl.JndiDb", null, "jqm-tests/jqm-test-pyl-nodep/target/test.jar", TestHelpers.qVip, 42,
                 "TestApp", null, "Test", "ModuleTest", "other", "other", false, cnx);
-        JobRequest.create("TestApp", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp", "TestUser").enqueue();
         TestHelpers.waitFor(1, 5000, cnx);
         TestHelpers.testOkCount(1, cnx);
         MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
@@ -244,7 +244,7 @@ public class JndiTest extends JqmBaseTest
         // Run the payload, it should leave an open conn that should be forcibly closed.
         CreationTools.createJobDef(null, true, "pyl.JndiDbLeak", null, "jqm-tests/jqm-test-pyl-nodep/target/test.jar", TestHelpers.qVip, 42,
                 "TestApp2", null, "Test", "ModuleTest", "other", "other", false, cnx);
-        JobRequest.create("TestApp2", "TestUser").submit();
+        jqmClient.newJobRequest("TestApp2", "TestUser").enqueue();
         TestHelpers.waitFor(1, 5000, cnx);
 
         // Test

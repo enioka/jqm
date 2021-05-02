@@ -46,10 +46,7 @@ import com.enioka.api.admin.QueueDto;
 import com.enioka.api.admin.QueueMappingDto;
 import com.enioka.api.admin.RRoleDto;
 import com.enioka.api.admin.RUserDto;
-import com.enioka.jqm.api.client.core.JdbcClient;
-import com.enioka.jqm.api.client.core.JqmClientException;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.SelfDestructFileStream;
+import com.enioka.jqm.client.api.JqmClientException;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.model.JobDef;
@@ -741,11 +738,14 @@ public class ServiceAdmin
     @Path("node/{nodeName}/log")
     @Produces("application/octet-stream")
     @GET
-    public InputStream getNodeLog(@PathParam("nodeName") String nodeName, @QueryParam("latest") int latest,
-            @Context HttpServletResponse res)
+    public InputStream SS(@PathParam("nodeName") String nodeName, @QueryParam("latest") int latest, @Context HttpServletResponse res)
     {
-        SelfDestructFileStream fs = (SelfDestructFileStream) ((JdbcClient) JqmClientFactory.getClient()).getEngineLog(nodeName, latest);
-        res.setHeader("Content-Disposition", "attachment; filename=" + nodeName + ".log");
-        return fs;
+        // TODO
+        /*
+         * InputStream fs = ((JdbcClient) JqmClientFactory.getClient()).getEngineLog(nodeName, latest); res.setHeader("Content-Disposition",
+         * "attachment; filename=" + nodeName + ".log"); return fs;
+         */
+
+        return null;
     }
 }

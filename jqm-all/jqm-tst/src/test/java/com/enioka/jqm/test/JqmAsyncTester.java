@@ -11,18 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.apache.commons.io.FilenameUtils;
-import org.hsqldb.Server;
-import org.hsqldb.jdbc.JDBCDataSource;
-
-import com.enioka.jqm.api.client.core.Deliverable;
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClient;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.JqmInvalidRequestException;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.State;
+import com.enioka.jqm.client.api.Deliverable;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JqmClient;
+import com.enioka.jqm.client.api.JqmInvalidRequestException;
+import com.enioka.jqm.client.api.State;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.engine.JqmEngineFactory;
 import com.enioka.jqm.engine.JqmEngineOperations;
 import com.enioka.jqm.jdbc.Db;
@@ -31,6 +25,10 @@ import com.enioka.jqm.model.DeploymentParameter;
 import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.model.Node;
 import com.enioka.jqm.model.Queue;
+
+import org.apache.commons.io.FilenameUtils;
+import org.hsqldb.Server;
+import org.hsqldb.jdbc.JDBCDataSource;
 
 /**
  * An asynchronous tester for JQM payloads. It allows to configure and start one or more embedded JQM engines and run payloads against them.
@@ -124,7 +122,7 @@ public class JqmAsyncTester
      * This must be called before starting the tester.
      *
      * @param nodeName
-     *                     the name of the node. Must be unique.
+     *            the name of the node. Must be unique.
      */
     public JqmAsyncTester addNode(String nodeName)
     {
@@ -149,7 +147,7 @@ public class JqmAsyncTester
      * Changes the log level of existing and future nodes.
      *
      * @param level
-     *                  TRACE, DEBUG, INFO, WARNING, ERROR (or anything, which is interpreted as INFO)
+     *            TRACE, DEBUG, INFO, WARNING, ERROR (or anything, which is interpreted as INFO)
      */
     public JqmAsyncTester setNodesLogLevel(String level)
     {
@@ -166,7 +164,7 @@ public class JqmAsyncTester
      * This must be called before starting the engines.
      *
      * @param name
-     *                 must be unique.
+     *            must be unique.
      */
     public JqmAsyncTester addQueue(String name)
     {
@@ -231,7 +229,7 @@ public class JqmAsyncTester
      * {@link #addJobDefinition(TestJobDefinition)} instead of using this method.
      *
      * @param classToRun
-     *                       a class present inside the class path which should be launched by JQM.
+     *            a class present inside the class path which should be launched by JQM.
      * @return the tester itself to allow fluid API behaviour.
      */
     public JqmAsyncTester addSimpleJobDefinitionFromClasspath(Class<? extends Object> classToRun)
@@ -248,11 +246,11 @@ public class JqmAsyncTester
      * {@link #addJobDefinition(TestJobDefinition)} instead of using this method.
      *
      * @param name
-     *                      name of the new job definition (as used in the enqueue methods)
+     *            name of the new job definition (as used in the enqueue methods)
      * @param className
-     *                      the full canonical name of the the class to run inside the jar
+     *            the full canonical name of the the class to run inside the jar
      * @param jarPath
-     *                      path to the jar. Relative to current directory.
+     *            path to the jar. Relative to current directory.
      * @return the tester itself to allow fluid API behaviour.
      */
     public JqmAsyncTester addSimpleJobDefinitionFromLibrary(String name, String className, String jarPath)
@@ -302,28 +300,29 @@ public class JqmAsyncTester
      */
     public int enqueue(String name)
     {
-        return JqmClientFactory.getClient().enqueue(JobRequest.create(name, "test"));
+        return JqmClientFactory.getClient().newJobRequest(name, "test").enqueue();
     }
 
     /**
      * Wait for a given amount of ended job instances (OK or KO).
      *
      * @param nbResult
-     *                             the expected result count
+     *            the expected result count
      * @param timeoutMs
-     *                             give up after this (throws a RuntimeException)
+     *            give up after this (throws a RuntimeException)
      * @param waitAdditionalMs
-     *                             after reaching the expected nbResult count, wait a little more (for example to ensure there is no
-     *                             additonal unwanted launch). Will usually be zero.
+     *            after reaching the expected nbResult count, wait a little more (for example to ensure there is no additonal unwanted
+     *            launch). Will usually be zero.
      */
     public void waitForResults(int nbResult, int timeoutMs, int waitAdditionalMs)
     {
         Calendar start = Calendar.getInstance();
-        while (Query.create().run().size() < nbResult && Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() <= timeoutMs)
+        while (JqmClientFactory.getClient().newQuery().invoke().size() < nbResult
+                && Calendar.getInstance().getTimeInMillis() - start.getTimeInMillis() <= timeoutMs)
         {
             sleepms(100);
         }
-        if (Query.create().run().size() < nbResult)
+        if (JqmClientFactory.getClient().newQuery().invoke().size() < nbResult)
         {
             throw new RuntimeException("expected result count was not reached in specified timeout");
         }
@@ -335,9 +334,9 @@ public class JqmAsyncTester
      * wait time.
      *
      * @param nbResult
-     *                      the expected result count
+     *            the expected result count
      * @param timeoutMs
-     *                      give up after this (throws a RuntimeException)
+     *            give up after this (throws a RuntimeException)
      */
     public void waitForResults(int nbResult, int timeoutMs)
     {
@@ -424,35 +423,35 @@ public class JqmAsyncTester
     ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Helper query (directly uses {@link Query}). Gives the count of all ended (KO and OK) job instances.
+     * Helper query (directly uses {@link JdbcQuery}). Gives the count of all ended (KO and OK) job instances.
      */
     public int getHistoryAllCount()
     {
-        return Query.create().run().size();
+        return JqmClientFactory.getClient().newQuery().invoke().size();
     }
 
     /**
-     * Helper query (directly uses {@link Query}). Gives the count of all non-ended (waiting in queue, running...) job instances.
+     * Helper query (directly uses {@link JdbcQuery}). Gives the count of all non-ended (waiting in queue, running...) job instances.
      */
     public int getQueueAllCount()
     {
-        return Query.create().setQueryHistoryInstances(false).setQueryLiveInstances(true).run().size();
+        return JqmClientFactory.getClient().newQuery().setQueryHistoryInstances(false).setQueryLiveInstances(true).invoke().size();
     }
 
     /**
-     * Helper query (directly uses {@link Query}). Gives the count of all OK-ended job instances.
+     * Helper query (directly uses {@link JdbcQuery}). Gives the count of all OK-ended job instances.
      */
     public int getOkCount()
     {
-        return Query.create().addStatusFilter(State.ENDED).run().size();
+        return JqmClientFactory.getClient().newQuery().addStatusFilter(State.ENDED).invoke().size();
     }
 
     /**
-     * Helper query (directly uses {@link Query}). Gives the count of all non-OK-ended job instances.
+     * Helper query (directly uses {@link JdbcQuery}). Gives the count of all non-OK-ended job instances.
      */
     public int getNonOkCount()
     {
-        return Query.create().addStatusFilter(State.CRASHED).addStatusFilter(State.KILLED).run().size();
+        return JqmClientFactory.getClient().newQuery().addStatusFilter(State.CRASHED).addStatusFilter(State.KILLED).invoke().size();
     }
 
     /**
@@ -496,7 +495,7 @@ public class JqmAsyncTester
         }
 
         com.enioka.jqm.model.Deliverable d = dd.get(0);
-        JobInstance ji = Query.create().setJobInstanceId(d.getJobId()).run().get(0);
+        JobInstance ji = JqmClientFactory.getClient().newQuery().setJobInstanceId(d.getJobId()).invoke().get(0);
         String nodeName = ji.getNodeName();
         Node n = nodes.get(nodeName);
 

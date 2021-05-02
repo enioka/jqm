@@ -30,10 +30,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.DeploymentParameter;
 import com.enioka.jqm.model.Node;
@@ -63,10 +61,10 @@ public class MultiNodeTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip, 42,
                 "AppliNode1-1", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest j11 = new JobRequest("AppliNode1-1", "TestUser");
+        JobRequest j11 = jqmClient.newJobRequest("AppliNode1-1", "TestUser");
         for (int i = 0; i < 10; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
+            j11.enqueue();
         }
 
         addAndStartEngine("localhost");
@@ -76,7 +74,7 @@ public class MultiNodeTest extends JqmBaseTest
         {
             for (int i = 0; i < 10; i++)
             {
-                JqmClientFactory.getClient().enqueue(j11);
+                j11.enqueue();
             }
             Thread.sleep(200);
         }
@@ -89,9 +87,9 @@ public class MultiNodeTest extends JqmBaseTest
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
         // Ran on both nodes?
-        Assert.assertTrue(Query.create().setNodeName("localhost48").run().size() == 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost4").run().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost48").invoke().size() == 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost4").invoke().size() > 0L);
     }
 
     @Test
@@ -99,10 +97,10 @@ public class MultiNodeTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip, 42,
                 "AppliNode1-1", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest j11 = new JobRequest("AppliNode1-1", "TestUser");
+        JobRequest j11 = jqmClient.newJobRequest("AppliNode1-1", "TestUser");
         for (int i = 0; i < 10; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
+            j11.enqueue();
         }
 
         addAndStartEngine("localhost");
@@ -113,7 +111,7 @@ public class MultiNodeTest extends JqmBaseTest
         {
             for (int i = 0; i < 10; i++)
             {
-                JqmClientFactory.getClient().enqueue(j11);
+                j11.enqueue();
             }
             Thread.sleep(200);
         }
@@ -125,10 +123,10 @@ public class MultiNodeTest extends JqmBaseTest
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
         // Ran on all nodes?
-        Assert.assertTrue(Query.create().setNodeName("localhost48").run().size() == 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost4").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost5").run().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost48").invoke().size() == 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost4").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost5").invoke().size() > 0L);
     }
 
     @Test
@@ -138,13 +136,13 @@ public class MultiNodeTest extends JqmBaseTest
                 "AppliNode1-1", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qVip2,
                 42, "AppliNode2-1", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest j11 = new JobRequest("AppliNode1-1", "TestUser");
-        JobRequest j21 = new JobRequest("AppliNode2-1", "TestUser");
+        JobRequest j11 = jqmClient.newJobRequest("AppliNode1-1", "TestUser");
+        JobRequest j21 = jqmClient.newJobRequest("AppliNode2-1", "TestUser");
 
         for (int i = 0; i < 10; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
-            JqmClientFactory.getClient().enqueue(j21);
+            j11.enqueue();
+            j21.enqueue();
         }
 
         addAndStartEngine("localhost");
@@ -154,8 +152,8 @@ public class MultiNodeTest extends JqmBaseTest
         {
             for (int i = 0; i < 10; i++)
             {
-                JqmClientFactory.getClient().enqueue(j11);
-                JqmClientFactory.getClient().enqueue(j21);
+                j11.enqueue();
+                j21.enqueue();
             }
             Thread.sleep(200);
         }
@@ -167,9 +165,9 @@ public class MultiNodeTest extends JqmBaseTest
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
         // Ran on all nodes?
-        Assert.assertTrue(Query.create().setNodeName("localhost48").run().size() == 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost2").run().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost48").invoke().size() == 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost2").invoke().size() > 0L);
     }
 
     @Test
@@ -194,29 +192,29 @@ public class MultiNodeTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qSlow3,
                 42, "AppliNode3-3", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
 
-        JobRequest j11 = new JobRequest("AppliNode1-1", "TestUser");
-        JobRequest j12 = new JobRequest("AppliNode1-2", "TestUser");
-        JobRequest j13 = new JobRequest("AppliNode1-3", "TestUser");
+        JobRequest j11 = jqmClient.newJobRequest("AppliNode1-1", "TestUser");
+        JobRequest j12 = jqmClient.newJobRequest("AppliNode1-2", "TestUser");
+        JobRequest j13 = jqmClient.newJobRequest("AppliNode1-3", "TestUser");
 
-        JobRequest j21 = new JobRequest("AppliNode2-1", "TestUser");
-        JobRequest j22 = new JobRequest("AppliNode2-2", "TestUser");
-        JobRequest j23 = new JobRequest("AppliNode2-3", "TestUser");
+        JobRequest j21 = jqmClient.newJobRequest("AppliNode2-1", "TestUser");
+        JobRequest j22 = jqmClient.newJobRequest("AppliNode2-2", "TestUser");
+        JobRequest j23 = jqmClient.newJobRequest("AppliNode2-3", "TestUser");
 
-        JobRequest j31 = new JobRequest("AppliNode3-1", "TestUser");
-        JobRequest j32 = new JobRequest("AppliNode3-2", "TestUser");
-        JobRequest j33 = new JobRequest("AppliNode3-3", "TestUser");
+        JobRequest j31 = jqmClient.newJobRequest("AppliNode3-1", "TestUser");
+        JobRequest j32 = jqmClient.newJobRequest("AppliNode3-2", "TestUser");
+        JobRequest j33 = jqmClient.newJobRequest("AppliNode3-3", "TestUser");
 
         for (int i = 0; i < 2; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
-            JqmClientFactory.getClient().enqueue(j12);
-            JqmClientFactory.getClient().enqueue(j13);
-            JqmClientFactory.getClient().enqueue(j21);
-            JqmClientFactory.getClient().enqueue(j22);
-            JqmClientFactory.getClient().enqueue(j23);
-            JqmClientFactory.getClient().enqueue(j31);
-            JqmClientFactory.getClient().enqueue(j32);
-            JqmClientFactory.getClient().enqueue(j33);
+            j11.enqueue();
+            j12.enqueue();
+            j13.enqueue();
+            j21.enqueue();
+            j22.enqueue();
+            j23.enqueue();
+            j31.enqueue();
+            j32.enqueue();
+            j33.enqueue();
         }
 
         addAndStartEngine("localhost");
@@ -227,15 +225,15 @@ public class MultiNodeTest extends JqmBaseTest
         {
             for (int i = 0; i < 2; i++)
             {
-                JqmClientFactory.getClient().enqueue(j11);
-                JqmClientFactory.getClient().enqueue(j12);
-                JqmClientFactory.getClient().enqueue(j13);
-                JqmClientFactory.getClient().enqueue(j21);
-                JqmClientFactory.getClient().enqueue(j22);
-                JqmClientFactory.getClient().enqueue(j23);
-                JqmClientFactory.getClient().enqueue(j31);
-                JqmClientFactory.getClient().enqueue(j32);
-                JqmClientFactory.getClient().enqueue(j33);
+                j11.enqueue();
+                j12.enqueue();
+                j13.enqueue();
+                j21.enqueue();
+                j22.enqueue();
+                j23.enqueue();
+                j31.enqueue();
+                j32.enqueue();
+                j33.enqueue();
             }
             Thread.sleep(200);
         }
@@ -247,10 +245,10 @@ public class MultiNodeTest extends JqmBaseTest
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
 
         // Ran on all nodes?
-        Assert.assertTrue(Query.create().setNodeName("localhost48").run().size() == 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost2").run().size() > 0L);
-        Assert.assertTrue(Query.create().setNodeName("localhost3").run().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost48").invoke().size() == 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost2").invoke().size() > 0L);
+        Assert.assertTrue(jqmClient.newQuery().setNodeName("localhost3").invoke().size() > 0L);
     }
 
     @Test
@@ -263,13 +261,13 @@ public class MultiNodeTest extends JqmBaseTest
         CreationTools.createJobDef(null, true, "pyl.EngineApiSendMsg", null, "jqm-tests/jqm-test-pyl/target/test.jar", TestHelpers.qNormal,
                 42, "AppliNode2-1", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
 
-        JobRequest j11 = new JobRequest("AppliNode1-1", "TestUser");
-        JobRequest j21 = new JobRequest("AppliNode2-1", "TestUser");
+        JobRequest j11 = jqmClient.newJobRequest("AppliNode1-1", "TestUser");
+        JobRequest j21 = jqmClient.newJobRequest("AppliNode2-1", "TestUser");
 
         for (int i = 0; i < 10; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
-            JqmClientFactory.getClient().enqueue(j21);
+            j11.enqueue();
+            j21.enqueue();
         }
         addAndStartEngine("localhost");
         addAndStartEngine("localhost4");
@@ -283,8 +281,8 @@ public class MultiNodeTest extends JqmBaseTest
         // Enqueue other requests.. they should run on node 2
         for (int i = 0; i < 10; i++)
         {
-            JqmClientFactory.getClient().enqueue(j11);
-            JqmClientFactory.getClient().enqueue(j21);
+            j11.enqueue();
+            j21.enqueue();
         }
         TestHelpers.waitFor(30, 5000, cnx);
         Thread.sleep(2000); // to ensure there are no additional runs
@@ -337,7 +335,7 @@ public class MultiNodeTest extends JqmBaseTest
 
         for (int i = 0; i < size; i++)
         {
-            JobRequest.create("appliname", "user").submit();
+            jqmClient.newJobRequest("appliname", "user").enqueue();
         }
 
         Calendar c = Calendar.getInstance();
@@ -354,7 +352,7 @@ public class MultiNodeTest extends JqmBaseTest
 
         for (int i = 0; i < size; i++)
         {
-            JobRequest.create("appliname", "user").submit();
+            jqmClient.newJobRequest("appliname", "user").enqueue();
         }
 
         TestHelpers.waitFor(size * 2, 120000, cnx);
@@ -368,7 +366,7 @@ public class MultiNodeTest extends JqmBaseTest
         {
             hasRunSomething.put("n" + i, false);
         }
-        for (JobInstance ji : Query.create().setPageSize(1000).run())
+        for (JobInstance ji : jqmClient.newQuery().setPageSize(1000).invoke())
         {
             hasRunSomething.put(ji.getNodeName(), true);
         }

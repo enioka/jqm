@@ -24,10 +24,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.Query.Sort;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.api.Query.Sort;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
@@ -38,7 +36,7 @@ public class NoApiPayloadTest extends JqmBaseTest
     {
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "jqm-test-datetimemaven", null, "Franquin", "ModuleMachin", "other", "other", false, cnx);
-        JobRequest.create("jqm-test-datetimemaven", "TestUser").submit();
+        jqmClient.newJobRequest("jqm-test-datetimemaven", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -59,7 +57,7 @@ public class NoApiPayloadTest extends JqmBaseTest
         JqmSimpleTest.create(cnx, "pyl.EngineApiInjectThread").expectOk(3).run(this);
 
         Assert.assertEquals(3, (int) cnx.runSelectSingle("message_select_count_all", Integer.class));
-        Assert.assertEquals(100, (int) Query.create().addSortAsc(Sort.ID).run().get(0).getProgress());
+        Assert.assertEquals(100, (int) jqmClient.newQuery().addSortAsc(Sort.ID).invoke().get(0).getProgress());
     }
 
     @Test
@@ -74,7 +72,7 @@ public class NoApiPayloadTest extends JqmBaseTest
         JqmSimpleTest.create(cnx, "pyl.EngineApiInject").setSessionId("123X").expectOk(3).run(this);
 
         Assert.assertEquals(3, (int) cnx.runSelectSingle("message_select_count_all", Integer.class));
-        Assert.assertEquals(100, (int) Query.create().run().get(0).getProgress());
+        Assert.assertEquals(100, (int) jqmClient.newQuery().invoke().get(0).getProgress());
     }
 
     @Test
@@ -86,8 +84,8 @@ public class NoApiPayloadTest extends JqmBaseTest
         // Create an empty lib directory just to be sure no dependencies will be resolved.
         FileUtils.forceMkdir(new File("../jqm-tests/jqm-test-providedapi/target/lib"));
 
-        JobRequest j = new JobRequest("MarsuApplication", "TestUser");
-        JqmClientFactory.getClient().enqueue(j);
+        JobRequest j = jqmClient.newJobRequest("MarsuApplication", "TestUser");
+        j.enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
@@ -104,14 +102,14 @@ public class NoApiPayloadTest extends JqmBaseTest
         cnx.runUpdate("jd_update_set_enabled_by_id", false, jd);
         cnx.commit();
 
-        JobRequest.create("MarsuApplication", "TestUser").submit();
+        jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
 
         addAndStartEngine();
         TestHelpers.waitFor(1, 10000, cnx);
 
         Assert.assertEquals(1, TestHelpers.getOkCount(cnx));
         Assert.assertEquals(0, TestHelpers.getNonOkCount(cnx));
-        Assert.assertEquals(-1, (int) Query.create().run().get(0).getProgress());
+        Assert.assertEquals(-1, (int) jqmClient.newQuery().invoke().get(0).getProgress());
     }
 
     @Test
@@ -120,7 +118,7 @@ public class NoApiPayloadTest extends JqmBaseTest
         // Here, engine API + full API mix.
         int i = JqmSimpleTest.create(cnx, "pyl.EngineApiInject", "jqm-test-pyl-hibapi").setSessionId("123X").expectOk(3).run(this);
 
-        Assert.assertEquals(1, JqmClientFactory.getClient().getJob(i).getMessages().size()); // 1 message per run created by payload
-        Assert.assertEquals(100, (int) JqmClientFactory.getClient().getJob(i).getProgress());
+        Assert.assertEquals(1, jqmClient.getJob(i).getMessages().size()); // 1 message per run created by payload
+        Assert.assertEquals(100, (int) jqmClient.getJob(i).getProgress());
     }
 }

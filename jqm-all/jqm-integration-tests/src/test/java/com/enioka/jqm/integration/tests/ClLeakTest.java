@@ -9,7 +9,6 @@ import javax.management.ObjectName;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.api.client.core.JqmClientFactory;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
 public class ClLeakTest extends JqmBaseTest
@@ -24,7 +23,7 @@ public class ClLeakTest extends JqmBaseTest
         mbs.getAttribute(name, "One");
 
         // Stop the job. Its MBean(s) should be cleaned up by the engine.
-        JqmClientFactory.getClient().killJob(i);
+        jqmClient.killJob(i);
         TestHelpers.waitFor(1, 3000, cnx);
 
         // Check the bean is really dead

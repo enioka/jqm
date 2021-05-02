@@ -23,8 +23,7 @@ import java.security.KeyStore;
 
 import javax.net.ssl.SSLContext;
 
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.Node;
 import com.enioka.jqm.pki.JdbcCa;
@@ -98,8 +97,7 @@ public class JettyTest extends JqmBaseTest
         // Launch a job so as to be able to query its status later
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest j = new JobRequest("MarsuApplication", "TestUser");
-        int i = JqmClientFactory.getClient().enqueue(j);
+        int i = jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
         TestHelpers.waitFor(1, 10000, cnx);
 
         // HTTPS client - with
@@ -146,8 +144,7 @@ public class JettyTest extends JqmBaseTest
         // Launch a job so as to be able to query its status later
         CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip, 42,
                 "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
-        JobRequest j = new JobRequest("MarsuApplication", "TestUser");
-        int i = JqmClientFactory.getClient().enqueue(j);
+        int i = jqmClient.newJobRequest("MarsuApplication", "TestUser").enqueue();
         TestHelpers.waitFor(1, 10000, cnx);
 
         // Server auth against trusted CA root certificate

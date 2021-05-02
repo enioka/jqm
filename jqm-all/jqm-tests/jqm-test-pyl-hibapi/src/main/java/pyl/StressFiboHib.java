@@ -3,8 +3,7 @@ package pyl;
 import java.util.Properties;
 
 import com.enioka.jqm.api.JobManager;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 
 public class StressFiboHib implements Runnable
 {
@@ -26,9 +25,9 @@ public class StressFiboHib implements Runnable
         if (Integer.parseInt(jm.parameters().get("p1")) <= 100)
         {
             System.out.println("BEFORE ENQUEUE");
-            JobRequest.create(jm.applicationName(), jm.userName()).addParameter("p1", jm.parameters().get("p2"))
+            JqmClientFactory.getClient().newJobRequest(jm.applicationName(), jm.userName()).addParameter("p1", jm.parameters().get("p2"))
                     .addParameter("p2", "" + (Integer.parseInt(jm.parameters().get("p2")) + Integer.parseInt(jm.parameters().get("p1"))))
-                    .submit();
+                    .enqueue();
         }
         System.out.println("QUIT FIBO");
     }

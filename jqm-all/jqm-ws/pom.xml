@@ -290,7 +290,7 @@
         <!-- This includes HTTPCLIENT, which is used in tests in this project -->
         <dependency>
             <groupId>com.enioka.jqm</groupId>
-            <artifactId>jqm-api-client-core</artifactId>
+            <artifactId>jqm-api-client-jdbc</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

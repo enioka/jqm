@@ -2,7 +2,7 @@ package com.enioka.jqm.service;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 
 @Parameters(commandNames = "New-Ji", commandDescription = "Create a new execution request.")
 class CommandNewJi extends CommandBase

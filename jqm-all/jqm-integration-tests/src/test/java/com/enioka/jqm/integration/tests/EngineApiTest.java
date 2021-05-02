@@ -18,13 +18,12 @@ package com.enioka.jqm.integration.tests;
 import java.util.Calendar;
 import java.util.List;
 
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.Query.Sort;
+import com.enioka.jqm.client.api.State;
+
 import org.junit.Assert;
 import org.junit.Test;
-
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.Query;
-import com.enioka.jqm.api.client.core.Query.Sort;
-import com.enioka.jqm.api.client.core.State;
 
 public class EngineApiTest extends JqmBaseTest
 {
@@ -37,7 +36,7 @@ public class EngineApiTest extends JqmBaseTest
 
         int i = JqmSimpleTest.create(cnx, "pyl.EngineApiSend3Msg").run(this);
 
-        List<String> messages = Query.create().setJobInstanceId(i).run().get(0).getMessages();
+        List<String> messages = jqmClient.newQuery().setJobInstanceId(i).invoke().get(0).getMessages();
         for (String msg : messages)
         {
             if (msg.equals("Les marsus sont nos amis, il faut les aimer aussi!"))
@@ -64,7 +63,7 @@ public class EngineApiTest extends JqmBaseTest
     {
         JqmSimpleTest.create(cnx, "pyl.EngineApiProgress").addWaitMargin(10000).run(this);
 
-        List<JobInstance> res = Query.create().run();
+        List<JobInstance> res = jqmClient.newQuery().invoke();
         Assert.assertEquals((Integer) 50, res.get(0).getProgress());
     }
 
@@ -85,7 +84,7 @@ public class EngineApiTest extends JqmBaseTest
     {
         JqmSimpleTest.create(cnx, "pyl.EngineApiWaitAll").expectOk(6).run(this);
 
-        List<JobInstance> jj = Query.create().addSortAsc(Sort.ID).addStatusFilter(State.ENDED).run();
+        List<JobInstance> jj = jqmClient.newQuery().addSortAsc(Sort.ID).addStatusFilter(State.ENDED).invoke();
         Calendar parentEnd = jj.get(0).getEndDate();
         for (int i = 1; i < 6; i++)
         {

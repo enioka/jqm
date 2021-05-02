@@ -31,9 +31,9 @@ import javax.inject.Inject;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
-import com.enioka.jqm.api.client.core.Query;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.api.JqmClient;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.engine.JqmEngineFactory;
 import com.enioka.jqm.engine.JqmEngineOperations;
@@ -87,13 +87,14 @@ public class JqmBaseTest
     @Inject
     ServiceWaiter serviceWaiter;
 
+    JqmClient jqmClient;
+
     @Rule
     public TestName testName = new TestName();
 
     @Configuration
     public Option[] config()
     {
-        Option[] additionnal = moreOsgiconfig();
         Option[] res = new Option[] {
                 // OSGi DECLARATIVE SERVICES
                 mavenBundle("org.osgi", "org.osgi.service.cm").versionAsInProject(),
@@ -167,6 +168,7 @@ public class JqmBaseTest
                 mavenBundle("com.enioka.jqm", "jqm-api").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-loader").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-api-client-core").versionAsInProject(),
+                mavenBundle("com.enioka.jqm", "jqm-api-client-jdbc").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-xml").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-service").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-admin").versionAsInProject(),
@@ -190,12 +192,14 @@ public class JqmBaseTest
 
         };
 
-        final int localOptionsCount = res.length;
+        Option[] additionnal = moreOsgiconfig();
+        int localOptionsCount = res.length;
         res = java.util.Arrays.copyOf(res, localOptionsCount + additionnal.length);
         for (int i = 0; i < additionnal.length; i++)
         {
             res[localOptionsCount + i] = additionnal[i];
         }
+
         return res;
     }
 
@@ -253,6 +257,7 @@ public class JqmBaseTest
         jqmlogger.debug("Starting test " + testName.getMethodName());
 
         JqmClientFactory.resetClient(null);
+        jqmClient = JqmClientFactory.getClient();
 
         if (db == null)
         {
@@ -410,7 +415,7 @@ public class JqmBaseTest
     {
         java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm:ss.SSS");
         jqmlogger.debug("==========================================================================================");
-        for (JobInstance h : Query.create().run())
+        for (JobInstance h : jqmClient.newQuery().invoke())
         {
             jqmlogger.debug("JobInstance Id: " + h.getId() + " | " + h.getState() + " | JD: " + h.getApplicationName() + " | "
                     + h.getQueueName() + " | enqueue: " + format.format(h.getEnqueueDate().getTime()) + " | exec: "
@@ -424,7 +429,7 @@ public class JqmBaseTest
     {
         java.text.SimpleDateFormat format = new java.text.SimpleDateFormat("HH:mm:ss.SSS");
         jqmlogger.debug("==========================================================================================");
-        for (JobInstance h : Query.create().setQueryHistoryInstances(false).setQueryLiveInstances(true).run())
+        for (JobInstance h : jqmClient.newQuery().setQueryHistoryInstances(false).setQueryLiveInstances(true).invoke())
         {
             jqmlogger.debug("JobInstance Id: " + h.getId() + " | " + h.getState() + " | JD: " + h.getApplicationName() + " | "
                     + h.getQueueName() + " | enqueue: " + format.format(h.getEnqueueDate().getTime()) + " | exec: "

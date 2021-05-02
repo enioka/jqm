@@ -25,8 +25,8 @@ import javax.persistence.Persistence;
 import org.apache.log4j.Logger;
 
 import com.enioka.jqm.api.JobBase;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 
 @SuppressWarnings("deprecation")
 public class App extends JobBase
@@ -54,9 +54,7 @@ public class App extends JobBase
             // End of datasource name change
 
             log.info("Queuing again - with parameter and through the full API");
-            JobRequest jd = new JobRequest("jqm-test-em", "marsu");
-            jd.addParameter("stop", "1");
-            JqmClientFactory.getClient().enqueue(jd);
+            JqmClientFactory.getClient().newJobRequest("jqm-test-em", "marsu").addParameter("stop", "1").enqueue();
         }
         log.info("End of payload");
     }

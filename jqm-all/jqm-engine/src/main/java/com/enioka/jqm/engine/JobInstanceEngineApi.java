@@ -11,12 +11,12 @@ import javax.naming.spi.NamingManager;
 import javax.sql.DataSource;
 
 import com.enioka.jqm.api.JobManager;
-import com.enioka.jqm.api.client.core.JobRequest;
-import com.enioka.jqm.api.client.core.JqmClient;
-import com.enioka.jqm.api.client.core.JqmClientException;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobRequest;
+import com.enioka.jqm.client.api.JqmClient;
+import com.enioka.jqm.client.api.JqmClientException;
+import com.enioka.jqm.client.api.Query;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.runner.api.JqmKillException;
-import com.enioka.jqm.api.client.core.Query;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.NoResultException;
 import com.enioka.jqm.model.GlobalParameter;
@@ -84,7 +84,7 @@ public class JobInstanceEngineApi implements JobManager
     public Integer enqueue(String applicationName, String user, String mail, String sessionId, String application, String module,
             String keyword1, String keyword2, String keyword3, Map<String, String> parameters)
     {
-        JobRequest jr = new JobRequest(applicationName, user, mail);
+        JobRequest jr = getJqmClient().newJobRequest(applicationName, user);
         jr.setApplicationName(applicationName);
         jr.setUser(user == null ? ji.getUserName() : user);
         jr.setEmail(mail);
@@ -100,7 +100,7 @@ public class JobInstanceEngineApi implements JobManager
             jr.setParameters(parameters);
         }
 
-        return getJqmClient().enqueue(jr);
+        return jr.enqueue();
     }
 
     @Override
@@ -116,9 +116,9 @@ public class JobInstanceEngineApi implements JobManager
     public void waitChild(int id)
     {
         JqmClient c = getJqmClient();
-        Query q = Query.create().setQueryHistoryInstances(false).setQueryLiveInstances(true).setJobInstanceId(id);
+        Query q = c.newQuery().setQueryHistoryInstances(false).setQueryLiveInstances(true).setJobInstanceId(id);
 
-        while (!c.getJobs(q).isEmpty())
+        while (!q.invoke().isEmpty())
         {
             try
             {
@@ -137,9 +137,9 @@ public class JobInstanceEngineApi implements JobManager
     public void waitChildren()
     {
         JqmClient c = getJqmClient();
-        Query q = Query.create().setQueryHistoryInstances(false).setQueryLiveInstances(true).setParentId(ji.getId());
+        Query q = c.newQuery().setQueryHistoryInstances(false).setQueryLiveInstances(true).setParentId(ji.getId());
 
-        while (!c.getJobs(q).isEmpty())
+        while (!q.invoke().isEmpty())
         {
             try
             {
@@ -284,7 +284,8 @@ public class JobInstanceEngineApi implements JobManager
             if (s.equals(Instruction.KILL))
             {
                 jqmlogger.info("Job will be killed at the request of a user");
-                Helpers.closeQuietly(cnx); // Close at once. Some DB drivers (Oracle...) will use the interruption state and reset.
+                Helpers.closeQuietly(cnx); // Close at once. Some DB drivers (Oracle...) will use the interruption state
+                                           // and reset.
                 Thread.currentThread().interrupt();
                 throw new JqmKillException("This job" + "(ID: " + ji.getId() + ")" + " has been forcefully ended by a user");
             }

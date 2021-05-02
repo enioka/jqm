@@ -39,8 +39,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.ops4j.pax.exam.Option;
 
-import com.enioka.jqm.api.client.core.JobInstance;
-import com.enioka.jqm.api.client.core.JqmClientFactory;
+import com.enioka.jqm.client.api.JobInstance;
+import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.Node;
 import com.enioka.jqm.model.State;
@@ -124,7 +124,7 @@ public class ApiSimpleTest extends JqmBaseTest
 
         // Check run is OK & parameters have been correctly processed
         JobInstance ji = JqmClientFactory.getClient().getJob(jid);
-        Assert.assertEquals(com.enioka.jqm.api.client.core.State.ENDED, ji.getState());
+        Assert.assertEquals(com.enioka.jqm.client.api.State.ENDED, ji.getState());
         Assert.assertEquals(2, ji.getParameters().size());
         Assert.assertEquals("newvalue2", ji.getParameters().get("arg2"));
         Assert.assertEquals("overridevalue", ji.getParameters().get("arg"));
