@@ -35,7 +35,7 @@
 
     "editor.formatOnSave": true,
 
-    "java.format.settings.url": "file:jqm-all/jqm-doc/src/site/sphinx/files/format_eclipse_modified_java.xml",
+    "java.format.settings.url": "jqm-all/jqm-doc/src/site/sphinx/files/format_eclipse_modified_java.xml",
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.import.exclusions": [
         "**/.*",

@@ -1,6 +1,7 @@
 {
     "recommendations": [
         "vscjava.vscode-java-pack",
+        "redhat.fabric8-analytics",
         "ms-azuretools.vscode-docker",
         "EditorConfig.editorconfig",
         "ms-vscode.powershell",
@@ -8,6 +9,7 @@
         "lextudio.restructuredtext",
         "DotJoshJohnson.xml",
         "ban.spellright",
-        "yycalm.linecount"
+        "yycalm.linecount",
+        "eg2.vscode-npm-script"
     ]
 }
