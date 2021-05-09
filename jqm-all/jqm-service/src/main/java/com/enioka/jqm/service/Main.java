@@ -18,8 +18,6 @@
 
 package com.enioka.jqm.service;
 
-import com.beust.jcommander.JCommander;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,62 +53,19 @@ public class Main
     static void stop(String[] args)
     {
         jqmlogger.info("Service stop");
-        CommandStartNode.engine.stop();
+        // TODO
+        // CommandStartNode.engine.stop();
     }
 
     /**
      * Startup method for the packaged JAR
      *
      * @param args
-     *                 0 is node name
+     *            0 is node name
      */
     public static void main(String[] args)
     {
-        System.exit(runCommand(args));
+        System.exit(OsgiRuntime.newFramework().runOsgiCommand(args));
     }
 
-    public static int runCommand(String[] args)
-    {
-        CommonService.setLogFileName("cli");
-
-        // Create parser
-        JCommander jc = JCommander.newBuilder().addCommand(new CommandExportJobDef()).addCommand(new CommandExportQueue())
-                .addCommand(new CommandGetEngineVersion()).addCommand(new CommandGetJiStatus()).addCommand(new CommandGetNodeCount())
-                .addCommand(new CommandGetRole()).addCommand(new CommandImportClusterConfiguration()).addCommand(new CommandImportJobDef())
-                .addCommand(new CommandImportQueue()).addCommand(new CommandInstallNodeTemplate()).addCommand(new CommandNewJi())
-                .addCommand(new CommandNewNode()).addCommand(new CommandResetRoot()).addCommand(new CommandResetUser())
-                .addCommand(new CommandSetWebConfiguration()).addCommand(new CommandStartNode()).addCommand(new CommandStartSingle())
-                .addCommand(new CommandUpdateSchema()).build();
-        jc.setColumnSize(160);
-        jc.setCaseSensitiveOptions(false);
-
-        // We do not bother with a non-command parsing for global help.
-        if (args.length == 1 && (args[0].equals("-h") || args[0].equals("--help") || args[0].equals("-?") || args[0].equals("/?")))
-        {
-            jc.usage();
-            return 0;
-        }
-
-        // Parse command
-        jc.parse(args);
-        CommandBase command = (CommandBase) jc.getCommands().get(jc.getParsedCommand()).getObjects().get(0);
-
-        if (command.help)
-        {
-            jc.usage(jc.getParsedCommand());
-            return 0;
-        }
-
-        // It is possible to actually switch from one environment to another by seting a different settings file.
-        // (and therefore a different datasource)
-        if (command.settingsFile != null)
-        {
-            jqmlogger.info("Using alternative settings file {}", command.settingsFile);
-            // TODO: use config service instead.
-            // Helpers.resourceFile = command.settingsFile;
-        }
-
-        // Go.
-        return command.doWork();
-    }
 }

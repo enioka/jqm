@@ -34,13 +34,13 @@ import javax.naming.NamingException;
 import com.enioka.jqm.client.api.JobInstance;
 import com.enioka.jqm.client.api.JqmClient;
 import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
+import com.enioka.jqm.clusternode.EngineCallback;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.engine.JqmEngineFactory;
 import com.enioka.jqm.engine.JqmEngineOperations;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.DbManager;
-import com.enioka.jqm.service.EngineCallback;
 import com.enioka.jqm.test.helpers.DebugHsqlDbServer;
 import com.enioka.jqm.test.helpers.ServiceWaiter;
 import com.enioka.jqm.test.helpers.TestHelpers;
@@ -98,12 +98,12 @@ public class JqmBaseTest
         Option[] res = new Option[] {
                 // OSGi DECLARATIVE SERVICES
                 mavenBundle("org.osgi", "org.osgi.service.cm").versionAsInProject(),
-                mavenBundle("org.apache.felix", "org.apache.felix.scr", "2.1.24"),
+                mavenBundle("org.apache.felix", "org.apache.felix.scr").versionAsInProject(),
                 mavenBundle("org.osgi", "org.osgi.util.promise", "1.1.1"), //
                 mavenBundle("org.osgi", "org.osgi.util.function", "1.1.0"),
 
                 // OSGi configuration service
-                mavenBundle("org.apache.felix", "org.apache.felix.configadmin", "1.9.20"),
+                mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),
 
                 // Our test database (for most tests)
                 mavenBundle("org.hsqldb", "hsqldb").versionAsInProject(),

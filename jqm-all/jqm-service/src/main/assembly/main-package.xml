@@ -1,4 +1,5 @@
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
     <id>main-package</id>
     <formats>
         <format>tar.gz</format>
@@ -117,6 +118,21 @@
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
             <scope>runtime</scope>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/bundle</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <scope>runtime</scope>
+            <includes>
+                <include>org.slf4j:slf4j-api</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <outputDirectory>/bundle</outputDirectory>
+            <useProjectArtifact>false</useProjectArtifact>
+            <unpack>false</unpack>
+            <scope>provided</scope>
             <excludes>
                 <exclude>com.enioka.jqm:jqm-ws</exclude>
                 <exclude>com.enioka.jqm:jqm-providers</exclude>
@@ -125,6 +141,9 @@
                 <exclude>org.apache.tomcat</exclude>
                 <exclude>org.hsqldb</exclude>
                 <exclude>com.sun.mail</exclude>
+                <exclude>org.osgi:osgi.*</exclude>                <!-- OSGi APIs are actually provided by the framework -->
+                <exclude>org.osgi:org.osgi.service.c*</exclude>
+                <exclude>org.eclipse.jetty:*</exclude>
             </excludes>
         </dependencySet>
         <dependencySet>
@@ -132,16 +151,17 @@
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
             <outputFileNameMapping>${artifact.artifactId}.${artifact.extension}</outputFileNameMapping>
+            <scope>test</scope>
             <includes>
                 <include>com.enioka.jqm:jqm-test-pyl:jar</include>
                 <include>com.enioka.jqm:jqm-test-pyl-nodep:jar</include>
             </includes>
-            <scope>test</scope>
         </dependencySet>
         <dependencySet>
             <outputDirectory>/ext</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
+            <scope>provided</scope>
             <includes>
                 <include>org.hsqldb:hsqldb</include>
                 <include>org.apache.tomcat:tomcat-jdbc</include>
@@ -151,18 +171,17 @@
                 <include>com.sun.mail:javax.mail</include>
                 <include>com.sun.mail:smtp</include>
             </includes>
-            <scope>test</scope>
         </dependencySet>
         <dependencySet>
             <outputDirectory>/plugins</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>false</unpack>
+            <scope>provided</scope>
             <includes>
                 <include>com.enioka.jqm:jqm-api</include>
                 <include>com.enioka.jqm:jqm-runner-basic</include>
                 <include>com.enioka.jqm:jqm-runner-spring</include>
             </includes>
-            <scope>test</scope>
         </dependencySet>
     </dependencySets>
 </assembly>

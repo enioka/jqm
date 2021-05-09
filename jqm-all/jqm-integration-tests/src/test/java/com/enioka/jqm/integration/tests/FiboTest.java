@@ -28,7 +28,6 @@ import org.junit.Test;
 
 import com.enioka.jqm.client.api.JobInstance;
 import com.enioka.jqm.client.api.Query.Sort;
-import com.enioka.jqm.service.CommonService;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
 public class FiboTest extends JqmBaseTest
@@ -42,7 +41,7 @@ public class FiboTest extends JqmBaseTest
     @After
     public void a()
     {
-        CommonService.setLogLevel("DEBUG");
+        // CommonService.setLogLevel("DEBUG");
     }
 
     @Test

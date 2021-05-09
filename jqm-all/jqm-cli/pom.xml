@@ -1,0 +1,47 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.enioka.jqm</groupId>
+        <artifactId>jqm-all</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>jqm-cli</artifactId>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+    <url>http://jqm.readthedocs.org</url>
+    <description>A library containing all the JQM CLI commands</description>
+
+    <dependencies>
+        <!-- CLI parsing -->
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+            <version>1.81</version>
+        </dependency>
+
+        <!-- We directly integrate the XML import/export functions in some commands -->
+        <dependency>
+            <groupId>com.enioka.jqm</groupId>
+            <artifactId>jqm-xml</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- JQM libs needed for the CLI commands -->
+        <dependency>
+            <groupId>com.enioka.jqm</groupId>
+            <artifactId>jqm-clusternode</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- Used for the OSGi main interface -->
+        <dependency>
+            <groupId>com.enioka.jqm</groupId>
+            <artifactId>jqm-cli-bootstrap</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>

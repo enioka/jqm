@@ -1,14 +1,13 @@
 package com.enioka.jqm.runner.shell;
 
-import com.enioka.jqm.engine.Helpers;
-import com.enioka.jqm.runner.api.JobRunner;
-
 import java.util.Dictionary;
 import java.util.Hashtable;
 
+import com.enioka.jqm.runner.api.JobRunner;
+
+import org.osgi.annotation.bundle.Header;
 import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
-import org.osgi.annotation.bundle.Header;
 import org.osgi.framework.ServiceRegistration;
 
 @Header(name = org.osgi.framework.Constants.BUNDLE_ACTIVATOR, value = "${@class}")

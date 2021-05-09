@@ -296,7 +296,12 @@
     <dependencies>
         <!-- This project mostly tests the service JQM distribution -->
         <dependency>
-            <groupId>com.enioka.jqm</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-cli</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>jqm-service</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -306,12 +311,33 @@
             <version>${project.version}</version>
             <classifier>classes</classifier>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-runner-java</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
+            <version>${shrinkwrap.resolver.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>${mail.version}</version>
+        </dependency>
 
         <!-- Tests helpers -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <version>1.0.3</version>
         </dependency>
         <dependency>
             <groupId>com.enioka.jqm</groupId>
@@ -326,6 +352,7 @@
             <version>${hsqldb.version}</version>
         </dependency>
 
+        <!-- PAX-EXAM allows us to more easily test OSGi bundles with Apache Felix -->
         <dependency>
             <groupId>org.ops4j.pax.exam</groupId>
             <artifactId>pax-exam-container-native</artifactId>
@@ -359,19 +386,6 @@
             <artifactId>pax-url-wrap</artifactId>
             <version>${pax.url.version}</version>
             <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-            <version>${felix.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.aries.jax.rs</groupId>
-            <artifactId>org.apache.aries.jax.rs.whiteboard</artifactId>
-            <version>1.0.10</version>
         </dependency>
 
         <dependency>

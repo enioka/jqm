@@ -80,6 +80,7 @@
         <maven.bnd.plugin.version>5.2.0</maven.bnd.plugin.version>
         <javadoc.version>2.10.3</javadoc.version>
         <httpclient.version>4.5.7</httpclient.version>
+        <httpcore.version>4.4.14</httpcore.version>
         <pool.version>9.0.16</pool.version>
         <bc.version>1.60</bc.version>
         <mail.version>1.5.2</mail.version>
@@ -98,7 +99,15 @@
         <pax.exam.version>4.13.4</pax.exam.version>
         <pax.url.version>2.6.2</pax.url.version>
         <felix.version>7.0.0</felix.version>
+        <felix.scr.version>2.1.26</felix.scr.version>
+        <felix.configadmin.version>1.9.20</felix.configadmin.version>
+        <felix.whiteboard.version>1.0.10</felix.whiteboard.version>
         <logback.version>1.2.3</logback.version>
+
+        <plugin.jar.version>3.2.0</plugin.jar.version>
+        <plugin.war.version>3.3.1</plugin.war.version>
+        <plugin.resources.version>3.2.0</plugin.resources.version>
+        <plugin.bnd.version>5.2.0</plugin.bnd.version>
 
         <sonatypeOssDistMgmtSnapshotsUrl>https://oss.sonatype.org/content/repositories/snapshots/</sonatypeOssDistMgmtSnapshotsUrl>
 
@@ -128,6 +137,9 @@
         <module>jqm-tst</module>
         <module>jqm-admin</module>
         <module>jqm-handlers</module>
+        <module>jqm-cli</module>
+        <module>jqm-cli-bootstrap</module>
+        <module>jqm-clusternode</module>
         <module>jqm-service</module>
         <module>jqm-xml</module>
         <module>jqm-integration-tests</module>
@@ -294,7 +306,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.plugin.version}</version>
+                <version>${plugin.jar.version}</version>
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -308,11 +320,18 @@
                 <version>${maven.bnd.plugin.version}</version>
                 <executions>
                     <execution>
+                        <id>PROCESS_BUNDLES</id>
                         <goals>
                             <goal>bnd-process</goal>
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <bnd><![CDATA[
+-noclassforname: true
+        ]]>
+                    </bnd>
+                </configuration>
             </plugin>
 
             <plugin>

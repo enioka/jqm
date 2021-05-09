@@ -104,6 +104,12 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>com.enioka.jqm</groupId>
+            <artifactId>jqm-engine</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.apache.tomcat</groupId>
             <artifactId>tomcat-jdbc</artifactId>
             <version>${pool.version}</version>

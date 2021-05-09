@@ -95,17 +95,12 @@ Import-Package: \
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jqm-engine</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Maven integration -->
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
             <artifactId>shrinkwrap-resolver-impl-maven</artifactId>
             <version>${shrinkwrap.resolver.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Stupid Java APIs workarounds -->
