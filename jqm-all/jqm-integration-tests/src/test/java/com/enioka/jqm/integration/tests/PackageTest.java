@@ -15,13 +15,9 @@
  */
 package com.enioka.jqm.integration.tests;
 
-import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.test.helpers.CreationTools;
 import com.enioka.jqm.test.helpers.TestHelpers;
 
-import org.jboss.shrinkwrap.resolver.api.NoResolvedResultException;
-import org.jboss.shrinkwrap.resolver.api.maven.Maven;
-import org.jboss.shrinkwrap.resolver.api.maven.repository.MavenRemoteRepositories;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -87,17 +83,5 @@ public class PackageTest extends JqmBaseTest
     public void testInheritedLegacyPayload() throws Exception
     {
         JqmSimpleTest.create(cnx, "pyl.PckJBInheritance").run(this);
-    }
-
-    // Cannot work in an OSGi container - we would need to shade shrinwrap here...
-    // @Test(expected = NoResolvedResultException.class)
-    public void testFailingDependency() throws Exception
-    {
-        jqmlogger.debug("**********************************************************");
-        jqmlogger.debug("Starting test testFailingDependency");
-
-        Maven.configureResolver()
-                .withRemoteRepo(MavenRemoteRepositories.createRemoteRepository("marsu", "http://marsupilami.com", "default"))
-                .withMavenCentralRepo(false).resolve("com.enioka.jqm:marsu:1.1.4").withTransitivity().asFile();
     }
 }

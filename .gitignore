@@ -34,3 +34,4 @@ serious/JobBaseAPI/nullnull
 /jqm-all/jqm-ws/src/main/webapp/dist/**
 /jqm-all/jqm-ws/src/main/webapp/index.html
 *dependency-reduced-pom.xml
+**/sphinx/_build

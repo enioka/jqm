@@ -163,6 +163,7 @@ public class JqmBaseTest
                 mavenBundle("com.enioka.jqm", "jqm-pki").versionAsInProject(),
 
                 // JQM tested libraries
+                mavenBundle("com.enioka.jqm", "jqm-clusternode").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-impl-hsql").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-impl-pg").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-api").versionAsInProject(),

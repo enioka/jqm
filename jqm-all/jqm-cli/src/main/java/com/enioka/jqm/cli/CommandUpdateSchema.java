@@ -15,14 +15,11 @@ class CommandUpdateSchema extends CommandBase
     @Override
     int doWork()
     {
-        if (!Helpers.isDbInitialized())
-        {
-            jqmlogger.info("Database connector initialization");
-            Properties p = Db.loadProperties();
-            p.setProperty("com.enioka.jqm.jdbc.allowSchemaUpdate", "true");
-            Db db = new Db(p);
-            DbManager.setDb(db);
-        }
+        jqmlogger.info("Database connector initialization");
+        Properties p = Db.loadProperties();
+        p.setProperty("com.enioka.jqm.jdbc.allowSchemaUpdate", "true");
+        Db db = new Db(p);
+        DbManager.setDb(db);
 
         try (DbConn cnx = Helpers.getNewDbSession())
         {
