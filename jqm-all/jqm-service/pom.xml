@@ -119,7 +119,7 @@
             <artifactId>org.apache.aries.jax.rs.whiteboard</artifactId>
             <version>${felix.whiteboard.version}</version>
             <scope>provided</scope>
-            <!-- Weirdly this package has a lot of "bad"" dependencies such as a second CXF (which is already repackaged in the main whiteboard jar)-->
+            <!-- Weirdly this package has a lot of "bad" dependencies such as a second CXF (which is already repackaged in the main whiteboard jar)-->
             <exclusions>
                 <exclusion>
                     <groupId>*</groupId>
@@ -174,7 +174,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- Other Jakarta APIs repackaged with a special associated OSGi provider -->
+        <!-- Other Jakarta APIs repackaged with an OSGi provider -->
         <dependency>
             <groupId>org.apache.geronimo.specs</groupId>
             <artifactId>geronimo-annotation_1.3_spec</artifactId>

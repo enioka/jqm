@@ -99,8 +99,8 @@ public class JqmBaseTest
                 // OSGi DECLARATIVE SERVICES
                 mavenBundle("org.osgi", "org.osgi.service.cm").versionAsInProject(),
                 mavenBundle("org.apache.felix", "org.apache.felix.scr").versionAsInProject(),
-                mavenBundle("org.osgi", "org.osgi.util.promise", "1.1.1"), //
-                mavenBundle("org.osgi", "org.osgi.util.function", "1.1.0"),
+                mavenBundle("org.osgi", "org.osgi.util.promise").versionAsInProject(),
+                mavenBundle("org.osgi", "org.osgi.util.function").versionAsInProject(),
 
                 // OSGi configuration service
                 mavenBundle("org.apache.felix", "org.apache.felix.configadmin").versionAsInProject(),
@@ -112,57 +112,41 @@ public class JqmBaseTest
                 mavenBundle("commons-io", "commons-io").versionAsInProject(),
                 mavenBundle("commons-lang", "commons-lang", "2.6").versionAsInProject(),
                 mavenBundle("org.apache.commons", "commons-lang3", "3.11").versionAsInProject(),
-                mavenBundle("org.apache.httpcomponents", "httpclient-osgi", "4.5.13"),
-                mavenBundle("org.apache.httpcomponents", "httpcore-osgi", "4.4.14"),
+                mavenBundle("org.apache.httpcomponents", "httpclient-osgi").versionAsInProject(),
+                mavenBundle("org.apache.httpcomponents", "httpcore-osgi").versionAsInProject(),
 
                 // Cron
                 wrappedBundle(mavenBundle("it.sauronsoftware.cron4j", "cron4j").versionAsInProject()),
-
-                // SPI FLY (serviceloader compatibility layer)
-                mavenBundle("org.apache.aries.spifly", "org.apache.aries.spifly.dynamic.bundle", "1.3.2"),
-                mavenBundle("org.apache.aries", "org.apache.aries.util", "1.1.3"),
-
-                // OW2 ASM
-                mavenBundle("org.ow2.asm", "asm", "9.0"), mavenBundle("org.ow2.asm", "asm-commons", "9.0"),
-                mavenBundle("org.ow2.asm", "asm-util", "9.0"), mavenBundle("org.ow2.asm", "asm-tree", "9.0"),
-                mavenBundle("org.ow2.asm", "asm-analysis", "9.0"),
 
                 // CLI
                 wrappedBundle(mavenBundle("com.beust", "jcommander").versionAsInProject()),
 
                 // LOG
-                mavenBundle("commons-logging", "commons-logging", "1.2"), //
+                mavenBundle("commons-logging", "commons-logging").versionAsInProject(),
                 mavenBundle("org.slf4j", "slf4j-api").versionAsInProject(),
                 mavenBundle("ch.qos.logback", "logback-core").versionAsInProject(),
                 mavenBundle("ch.qos.logback", "logback-classic").versionAsInProject(),
 
-                // XML & binding though annotations
+                // XML & binding through annotations
                 wrappedBundle(mavenBundle("org.jdom", "jdom").versionAsInProject()), //
-                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2", "2.9.0"),
-                mavenBundle("jakarta.activation", "jakarta.activation-api", "1.2.2"),
-                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.stax-api-1.2", "2.9.0"),
-                mavenBundle("org.apache.geronimo.specs", "geronimo-annotation_1.3_spec", "1.3"),
-                mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api", "2.3.3"),
+                mavenBundle("jakarta.activation", "jakarta.activation-api").versionAsInProject(),
+                mavenBundle("jakarta.xml.bind", "jakarta.xml.bind-api").versionAsInProject(), // JAXB
+                mavenBundle("org.apache.geronimo.specs", "geronimo-annotation_1.3_spec").versionAsInProject(),
 
-                // Maven resolver libs
-                wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-api", "3.1.3")),
-                wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-spi", "3.1.3")),
-                wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-api-maven", "3.1.3")),
-                wrappedBundle(mavenBundle("org.jboss.shrinkwrap.resolver", "shrinkwrap-resolver-impl-maven", "3.1.3")),
-                wrappedBundle(mavenBundle("org.jvnet.winp", "winp", "1.27")),
-
-                systemProperty("org.ops4j.pax.url.mvn.repositories").value("https://repo1.maven.org/maven2@id=central"),
-                systemProperty("org.ops4j.pax.url.mvn.useFallbackRepositories").value("false"),
+                // Needed on Java8 to kill processes properly (inside shell runner)
+                wrappedBundle(mavenBundle("org.jvnet.winp", "winp").versionAsInProject()),
 
                 // Shiro is needed by test helpers & client lib for password generation
                 mavenBundle("org.apache.shiro", "shiro-core").versionAsInProject(),
 
-                // Needed for certificate init on main service startup. (TODO: remove once a dedicated OSGi service)
+                // Needed for certificate init on main service startup.
                 mavenBundle("org.bouncycastle", "bcpkix-jdk15on").versionAsInProject(),
                 mavenBundle("org.bouncycastle", "bcprov-jdk15on").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-pki").versionAsInProject(),
 
                 // JQM tested libraries
+                mavenBundle("com.enioka.jqm", "jqm-cli").versionAsInProject(),
+                mavenBundle("com.enioka.jqm", "jqm-cli-bootstrap").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-clusternode").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-impl-hsql").versionAsInProject(),
                 mavenBundle("com.enioka.jqm", "jqm-impl-pg").versionAsInProject(),
@@ -190,6 +174,10 @@ public class JqmBaseTest
                 // Log config file
                 systemProperty("logback.configurationFile")
                         .value("file:" + Paths.get("../jqm-service/target/classes/logback.xml").toAbsolutePath().normalize().toString()),
+
+                // Maven config
+                systemProperty("org.ops4j.pax.url.mvn.repositories").value("https://repo1.maven.org/maven2@id=central"),
+                systemProperty("org.ops4j.pax.url.mvn.useFallbackRepositories").value("false"),
 
         };
 
@@ -219,23 +207,17 @@ public class JqmBaseTest
     {
         return options(
                 // OSGi HTTP Whiteboard (based on Jetty, providing OSGi HTTP service, used by JAX-RS whiteboard)
-                mavenBundle("jakarta.activation", "jakarta.activation-api", "1.2.2"),
-                mavenBundle("javax.xml.bind", "jaxb-api", "2.4.0-b180830.0359"),
-                mavenBundle("org.apache.felix", "org.apache.felix.http.api", "3.0.0"),
-                mavenBundle("org.apache.felix", "org.apache.felix.http.servlet-api", "1.1.2"),
-                mavenBundle("org.apache.felix", "org.apache.felix.http.jetty", "4.1.4"),
-                mavenBundle("org.osgi", "org.osgi.service.http.whiteboard", "1.1.0"),
+                mavenBundle("org.apache.felix", "org.apache.felix.http.servlet-api").versionAsInProject(),
+                mavenBundle("org.apache.felix", "org.apache.felix.http.jetty").versionAsInProject(),
+                mavenBundle("org.osgi", "org.osgi.service.http.whiteboard").versionAsInProject(),
 
                 // OSGi JAX-RS whiteboard (based on CXF, with full useless SOAP implementation)
-                mavenBundle("org.osgi", "org.osgi.service.jaxrs", "1.0.0"),
-                mavenBundle("org.apache.aries.jax.rs", "org.apache.aries.jax.rs.whiteboard", "1.0.10"),
-                mavenBundle("org.apache.aries.spec", "org.apache.aries.javax.jax.rs-api", "1.0.4"),
-                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.jaxb-api-2.2", "2.9.0"),
-                mavenBundle("org.apache.servicemix.specs", "org.apache.servicemix.specs.stax-api-1.2", "2.9.0"),
-                mavenBundle("org.apache.geronimo.specs", "geronimo-annotation_1.3_spec", "1.3"),
-                mavenBundle("javax.xml.ws", "jaxws-api", "2.3.1"), //
-                mavenBundle("jakarta.xml.soap", "jakarta.xml.soap-api", "1.4.2"),
-                mavenBundle("jakarta.annotation", "jakarta.annotation-api", "1.3.5"),
+                mavenBundle("org.osgi", "org.osgi.service.jaxrs").versionAsInProject(),
+                mavenBundle("org.apache.aries.jax.rs", "org.apache.aries.jax.rs.whiteboard").versionAsInProject(),
+                mavenBundle("org.apache.aries.spec", "org.apache.aries.javax.jax.rs-api").versionAsInProject(),
+                mavenBundle("jakarta.xml.ws", "jakarta.xml.ws-api").versionAsInProject(),
+                mavenBundle("jakarta.xml.soap", "jakarta.xml.soap-api").versionAsInProject(),
+                mavenBundle("jakarta.annotation", "jakarta.annotation-api").versionAsInProject(),
 
                 systemProperty("org.apache.felix.http.enable").value("false"),
                 systemProperty("org.apache.felix.https.enable").value("false"), //

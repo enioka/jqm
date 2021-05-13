@@ -47,22 +47,6 @@
                 </plugins>
             </build>
         </profile>
-
-        <!-- Jersey brings a JAXB API on 11+. It is included in the JDK on 1.8 and below. So 1.9 and  1.10 are an issue. -->
-        <!-- Note we always build for 1.8, so this is only for tests -->
-        <profile>
-            <id>oldjdks</id>
-            <activation>
-                <jdk>[9,11)</jdk>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>jakarta.xml.bind</groupId>
-                    <artifactId>jakarta.xml.bind-api</artifactId>
-                    <version>2.3.3</version>
-                </dependency>
-            </dependencies>
-        </profile>
     </profiles>
 
     <build>
