@@ -53,8 +53,9 @@ public class RunningExternalJobInstance implements Runnable
         List<String> args = new ArrayList<>();
 
         args.add(java_path);
+        args.add("-Dcom.enioka.jqm.service.osgi.rootdir=.");
         args.addAll(Arrays.asList(opts.split(" ")));
-        args.add("com.enioka.jqm.tools.Main");
+        args.add("com.enioka.jqm.service.Main");
         args.add("Start-Single");
         args.add("--id");
         args.add("" + this.jobId);

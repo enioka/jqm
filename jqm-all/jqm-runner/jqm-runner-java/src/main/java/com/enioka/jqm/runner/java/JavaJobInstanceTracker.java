@@ -36,6 +36,7 @@ import com.enioka.jqm.runner.api.JobRunnerCallback;
 import com.enioka.jqm.runner.api.JqmKillException;
 import com.enioka.jqm.runner.java.api.JavaJobInstanceTrackerMBean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -110,6 +111,16 @@ class JavaJobInstanceTracker implements JobInstanceTracker, JavaJobInstanceTrack
     @Override
     public State run()
     {
+        // Logging setup
+        if (System.out instanceof MultiplexPrintStream)
+        {
+            String fileName = StringUtils.leftPad("" + job.getId(), 10, "0");
+            MultiplexPrintStream mps = (MultiplexPrintStream) System.out;
+            mps.registerThread(String.valueOf(fileName + ".stdout.log"));
+            mps = (MultiplexPrintStream) System.err;
+            mps.registerThread(String.valueOf(fileName + ".stderr.log"));
+        }
+
         // Class loader switch
         classLoaderToRestoreAtEnd = Thread.currentThread().getContextClassLoader();
         try
@@ -141,6 +152,16 @@ class JavaJobInstanceTracker implements JobInstanceTracker, JavaJobInstanceTrack
         {
             jqmlogger.info("Job instance " + job.getId() + " has crashed. Exception was:", e);
             return State.CRASHED;
+        }
+        finally
+        {
+            if (System.out instanceof MultiplexPrintStream)
+            {
+                MultiplexPrintStream mps = (MultiplexPrintStream) System.out;
+                mps.unregisterThread();
+                mps = (MultiplexPrintStream) System.err;
+                mps.unregisterThread();
+            }
         }
     }
 

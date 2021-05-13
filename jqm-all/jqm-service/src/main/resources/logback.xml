@@ -1,5 +1,22 @@
 <configuration>
+    <!-- A console appender -->
     <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%date{dd/MM HH:mm:ss.SSS}|%-5level|%-70.70thread|%30.30logger{1}|%exception%message%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Main node file log appender -->
+    <appender name="rollingfile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./logs/jqm.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- daily rollover -->
+            <fileNamePattern>./logs/jqm.log/logFile.%d{yyyy-MM-dd}.log</fileNamePattern>
+
+            <maxHistory>5</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+
         <encoder>
             <pattern>%date{dd/MM HH:mm:ss.SSS}|%-5level|%-70.70thread|%30.30logger{1}|%exception%message%n</pattern>
         </encoder>

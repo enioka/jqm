@@ -40,8 +40,14 @@ class OsgiRuntime
             throw new RuntimeException(e);
         }
 
-        String libPath = new File(currentJar.getParent(), "bundle").getAbsolutePath();
-        String tmpPath = new File(currentJar.getParent(), "tmp/osgicache").getAbsolutePath();
+        String rootDir = System.getProperty("com.enioka.jqm.service.osgi.rootdir");
+        if (rootDir == null)
+        {
+            rootDir = currentJar.getParent();
+        }
+
+        String libPath = new File(rootDir, "bundle").getAbsolutePath();
+        String tmpPath = new File(rootDir, "tmp/osgicache").getAbsolutePath();
 
         // Properties
         Map<String, String> osgiConfig = new HashMap<>();

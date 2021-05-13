@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.enioka.jqm.clusternode;
+package com.enioka.jqm.runner.java;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -27,20 +27,20 @@ import java.io.Writer;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.enioka.jqm.engine.JqmInitError;
 import com.enioka.jqm.model.GlobalParameter;
 
 import org.apache.commons.io.FilenameUtils;
-
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ch.qos.logback.classic.Logger;
 
 /**
  * The goal of this Stream is to provide a replacement for stdout/err in which every running job instance has its own personal flow. This is
  * basically flow multiplexing, with the multiplexing key being the caller Thread object. Used by default, can be disabled with a
  * {@link GlobalParameter}. <br>
  * Should a payload create a new thread, its stdout would go to the global log as the multiplexing key is the Thread. But is not a big deal
- * as creating threads inside an app server is not a good idea anyway.
+ * as creating threads inside an app server is not a good idea anyway.<br>
+ * <br>
+ * This is a variant of the SiftingAppender of logback-classic (which is not used here as way too specific)
  */
 class MultiplexPrintStream extends PrintStream
 {
@@ -64,7 +64,7 @@ class MultiplexPrintStream extends PrintStream
         File d = new File(this.rootLogDir);
         if (!d.isDirectory() && !d.mkdir())
         {
-            throw new JqmInitError("could not create log dir " + this.rootLogDir);
+            throw new RuntimeException("could not create log dir " + this.rootLogDir);
         }
     }
 

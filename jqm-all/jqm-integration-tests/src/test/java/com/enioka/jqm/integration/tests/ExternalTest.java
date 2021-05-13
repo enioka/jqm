@@ -3,7 +3,6 @@ package com.enioka.jqm.integration.tests;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.enioka.jqm.client.api.JobRequest;
 import com.enioka.jqm.engine.Helpers;
 import com.enioka.jqm.model.JobDef;
 import com.enioka.jqm.test.helpers.CreationTools;
@@ -14,6 +13,7 @@ public class ExternalTest extends JqmBaseTest
     @Test
     public void testExternalLaunch() throws Exception
     {
+        // A job which simply outputs the date on stdout.
         int jdId = CreationTools.createJobDef(null, true, "App", null, "jqm-tests/jqm-test-datetimemaven/target/test.jar", TestHelpers.qVip,
                 42, "MarsuApplication", null, "Franquin", "ModuleMachin", "other", "other", true, cnx);
         JobDef.setExternal(cnx, jdId);

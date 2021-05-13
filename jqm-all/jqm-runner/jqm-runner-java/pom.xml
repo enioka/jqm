@@ -89,12 +89,6 @@ Import-Package: \
             <version>${project.version}</version>
         </dependency>
 
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jqm-api-client-core</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
         <!-- Maven integration -->
         <dependency>
             <groupId>org.jboss.shrinkwrap.resolver</groupId>
@@ -120,6 +114,13 @@ Import-Package: \
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Needed for log multiplexing -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
         </dependency>
     </dependencies>
 </project>
