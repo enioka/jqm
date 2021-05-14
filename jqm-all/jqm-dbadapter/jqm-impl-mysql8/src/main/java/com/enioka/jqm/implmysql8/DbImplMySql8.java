@@ -15,9 +15,12 @@ import com.enioka.jqm.jdbc.QueryPreparation;
 import com.enioka.jqm.model.JobInstance;
 import com.enioka.jqm.model.Queue;
 
+import org.osgi.service.component.annotations.Component;
+
 /**
  * Should work on MySQL 8+ and MariaDB 10.3+. These versions have introduced persistent AUTO_INCREMENT high water mark.
  */
+@Component(service = DbAdapter.class, property = { "Adapter-Type:String=mysql" })
 public class DbImplMySql8 extends DbAdapter
 {
     @Override

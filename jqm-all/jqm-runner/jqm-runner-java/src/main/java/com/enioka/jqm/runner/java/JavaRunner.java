@@ -16,7 +16,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
 import org.osgi.service.component.annotations.Deactivate;
-import org.osgi.service.component.annotations.ServiceScope;
 import org.slf4j.LoggerFactory;
 
 import ch.qos.logback.classic.Logger;
@@ -26,7 +25,7 @@ import ch.qos.logback.core.rolling.RollingFileAppender;
  * Being in Java, JQM can have a special relationship with jobs coded in Java. This runner provides the capacity to run classes with
  * advanced CL handling inside the engine process. It itself has multiple plugins allowing it to load different types of classes.
  */
-@Component(property = { "Plugin-Type=JobRunner", "Runner-Type=java" }, scope = ServiceScope.PROTOTYPE)
+@Component(property = { "Plugin-Type=JobRunner", "Runner-Type=java" })
 public class JavaRunner implements JobRunner
 {
     private ClassloaderManager classloaderManager;

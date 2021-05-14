@@ -15,6 +15,9 @@ import com.enioka.jqm.jdbc.QueryPreparation;
 import com.enioka.jqm.model.JobInstance;
 import com.enioka.jqm.model.Queue;
 
+import org.osgi.service.component.annotations.Component;
+
+@Component(service = DbAdapter.class, property = { "Adapter-Type:String=oracle" })
 public class DbImplOracle extends DbAdapter
 {
     @Override

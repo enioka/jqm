@@ -12,6 +12,9 @@ import com.enioka.jqm.jdbc.DatabaseException;
 import com.enioka.jqm.jdbc.DbAdapter;
 import com.enioka.jqm.jdbc.QueryPreparation;
 
+import org.osgi.service.component.annotations.Component;
+
+@Component(service = DbAdapter.class, property = { "Adapter-Type:String=db2" })
 public class DbImplDb2 extends DbAdapter
 {
     @Override

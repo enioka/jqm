@@ -1,7 +1,5 @@
 package com.enioka.jqm.implmysql;
 
-import java.io.Console;
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
@@ -14,11 +12,14 @@ import java.util.Properties;
 import com.enioka.jqm.jdbc.DatabaseException;
 import com.enioka.jqm.jdbc.DbAdapter;
 import com.enioka.jqm.jdbc.DbConn;
-import com.enioka.jqm.jdbc.QueryPreparation;
 import com.enioka.jqm.jdbc.NoResultException;
+import com.enioka.jqm.jdbc.QueryPreparation;
 import com.enioka.jqm.model.JobInstance;
 import com.enioka.jqm.model.Queue;
 
+import org.osgi.service.component.annotations.Component;
+
+@Component(service = DbAdapter.class, property = { "Adapter-Type:String=mysql" })
 public class DbImplMySql extends DbAdapter
 {
     private String sequenceSql, sequenceSqlRetrieval;

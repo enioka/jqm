@@ -7,6 +7,9 @@ import java.util.List;
 
 import com.enioka.jqm.jdbc.DbAdapter;
 
+import org.osgi.service.component.annotations.Component;
+
+@Component(service = DbAdapter.class, property = { "Adapter-Type:String=postgresql" })
 public class DbImplPg extends DbAdapter
 {
     public DbImplPg()
