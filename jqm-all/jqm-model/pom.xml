@@ -37,23 +37,23 @@
                         <phase>validate</phase>
                         <configuration>
                             <tasks>
-                                <copy file="../jqm-dbadapter/jqm-impl-db2/src/main/java/com/enioka/jqm/impldb2/DbImplDb2.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplDb2.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplDb2.java" token="com.enioka.jqm.impldb2" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-db2/src/main/java/com/enioka/jqm/jdbc/impl/db2/DbImplDb2.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplDb2.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplDb2.java" token="com.enioka.jqm.jdbc.impl.db2" value="com.enioka.jqm.jdbc"/>
 
-                                <copy file="../jqm-dbadapter/jqm-impl-hsql/src/main/java/com/enioka/jqm/implhsql/DbImplHsql.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplHsql.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplHsql.java" token="com.enioka.jqm.implhsql" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-hsql/src/main/java/com/enioka/jqm/jdbc/impl/hsql/DbImplHsql.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplHsql.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplHsql.java" token="com.enioka.jqm.jdbc.impl.hsql" value="com.enioka.jqm.jdbc"/>
 
-                                <copy file="../jqm-dbadapter/jqm-impl-mysql/src/main/java/com/enioka/jqm/implmysql/DbImplMySql.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplMySql.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplMySql.java" token="com.enioka.jqm.implmysql" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-mysql/src/main/java/com/enioka/jqm/jdbc/impl/mysql/DbImplMySql.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplMySql.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplMySql.java" token="com.enioka.jqm.jdbc.impl.mysql" value="com.enioka.jqm.jdbc"/>
 
-                                <copy file="../jqm-dbadapter/jqm-impl-mysql8/src/main/java/com/enioka/jqm/implmysql8/DbImplMySql8.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplMySql8.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplMySql8.java" token="com.enioka.jqm.implmysql8" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-mysql8/src/main/java/com/enioka/jqm/jdbc/impl/mysql8/DbImplMySql8.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplMySql8.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplMySql8.java" token="com.enioka.jqm.jdbc.impl.mysql8" value="com.enioka.jqm.jdbc"/>
 
-                                <copy file="../jqm-dbadapter/jqm-impl-oracle/src/main/java/com/enioka/jqm/imploracle/DbImplOracle.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplOracle.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplOracle.java" token="com.enioka.jqm.imploracle" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-oracle/src/main/java/com/enioka/jqm/jdbc/impl/oracle/DbImplOracle.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplOracle.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplOracle.java" token="com.enioka.jqm.jdbc.impl.oracle" value="com.enioka.jqm.jdbc"/>
 
-                                <copy file="../jqm-dbadapter/jqm-impl-pg/src/main/java/com/enioka/jqm/implpg/DbImplPg.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplPg.java"/>
-                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplPg.java" token="com.enioka.jqm.implpg" value="com.enioka.jqm.jdbc"/>
+                                <copy file="../jqm-dbadapter/jqm-dbadapter-pg/src/main/java/com/enioka/jqm/jdbc/impl/pg/DbImplPg.java" tofile="src/main/java/com/enioka/jqm/jdbc/DbImplPg.java"/>
+                                <replace file="src/main/java/com/enioka/jqm/jdbc/DbImplPg.java" token="com.enioka.jqm.jdbc.impl.pg" value="com.enioka.jqm.jdbc"/>
                             </tasks>
                         </configuration>
                         <goals>

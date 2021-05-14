@@ -13,11 +13,11 @@
     <url>http://jqm.readthedocs.org</url>
 
     <modules>
-        <module>jqm-impl-db2</module>
-        <module>jqm-impl-hsql</module>
-        <module>jqm-impl-mysql</module>
-        <module>jqm-impl-mysql8</module>
-        <module>jqm-impl-oracle</module>
-        <module>jqm-impl-pg</module>
+        <module>jqm-dbadapter-db2</module>
+        <module>jqm-dbadapter-hsql</module>
+        <module>jqm-dbadapter-mysql</module>
+        <module>jqm-dbadapter-mysql8</module>
+        <module>jqm-dbadapter-oracle</module>
+        <module>jqm-dbadapter-pg</module>
     </modules>
 </project>
