@@ -121,21 +121,13 @@ final class JdbcClient implements JqmClient, JqmClientEnqueueCallback, JqmClient
             jqmlogger.trace("database context present in properties");
             db = (Db) p.get("com.enioka.jqm.jdbc.contextobject");
         }
-        else
-        {
-            db = DbManager.getDb();
-        }
+        // otherwise db is created on first use.
     }
 
     private Db createFactory()
     {
         jqmlogger.debug("Creating connection factory to database");
-
-        // Get all properties from all allowed sources.
-        p.putAll(Db.loadProperties());
-
-        // Create DB.
-        return new Db(p);
+        return DbManager.getDb(p);
     }
 
     DbConn getDbSession()

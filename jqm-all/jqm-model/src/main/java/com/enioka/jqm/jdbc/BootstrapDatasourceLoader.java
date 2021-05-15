@@ -26,7 +26,7 @@ import org.w3c.dom.NodeList;
  * libraries offered to end-users. This means it must have as little dependencies as possible. So we simply have a very basic data source
  * factory in this class, which can only use data from the local XML file.<br>
  * It looks for objet factories inside the bundle CL (which means application CL outside OSGi), as well as /ext if it exists.<br>
- * It is very static, as is JNDI so no effort was made on this front.
+ * It is very static, but as is JNDI so no effort was made on this front.
  */
 final class BootstrapDatasourceLoader
 {
@@ -46,8 +46,7 @@ final class BootstrapDatasourceLoader
      * No construction is possible - static class.
      */
     private BootstrapDatasourceLoader()
-    {
-    }
+    {}
 
     /**
      * If there is a local /ext directory, meaning we are running inside a JQM node and not an application server, try to load given
@@ -79,7 +78,7 @@ final class BootstrapDatasourceLoader
     {
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
-        try (InputStream is = BootstrapDatasourceLoader.class.getClassLoader().getSystemResourceAsStream(resourceFile))
+        try (InputStream is = ClassLoader.getSystemResourceAsStream(resourceFile))
         {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(is);

@@ -20,6 +20,7 @@ import java.util.Properties;
 import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
+import com.enioka.jqm.jdbc.DbManager;
 
 public final class Helpers
 {
@@ -27,11 +28,10 @@ public final class Helpers
 
     static
     {
-        // Load optional properties file
-        Properties p = Db.loadProperties();
-
         // Connect to DB.
-        db = new Db(p);
+        db = DbManager.getDb();
+
+        Properties p = new Properties();
         p.put("com.enioka.jqm.jdbc.contextobject", db); // Share the DataSource in engine and client.
         JqmClientFactory.setProperties(p);
     }

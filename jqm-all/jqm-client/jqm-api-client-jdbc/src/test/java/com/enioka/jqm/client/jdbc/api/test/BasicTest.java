@@ -39,6 +39,7 @@ import com.enioka.jqm.client.api.Query.Sort;
 import com.enioka.jqm.client.jdbc.api.JqmClientFactory;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
+import com.enioka.jqm.jdbc.DbManager;
 import com.enioka.jqm.model.Instruction;
 import com.enioka.jqm.model.JobDef;
 import com.enioka.jqm.model.JobDef.PathType;
@@ -240,9 +241,7 @@ public class BasicTest
     @Test
     public void testBug305()
     {
-        Properties p = new Properties();
-        p.putAll(Db.loadProperties());
-        Db db = new Db(p);
+        Db db = DbManager.getDb();
         try (DbConn cnx = db.getConn())
         {
             int qId = Queue.create(cnx, "q1", "q1 description", true);
