@@ -57,8 +57,9 @@ public class DbImplMySql extends DbAdapter
     {
         return (product.getDatabaseProductName().contains("MySQL")
                 && ((product.getDatabaseMajorVersion() == 5 && product.getDatabaseMinorVersion() >= 6)
-                        || product.getDatabaseMajorVersion() > 5))
-                || (product.getDatabaseProductName().contains("MariaDB") && product.getDatabaseMajorVersion() >= 10);
+                        || (product.getDatabaseMajorVersion() > 5 && product.getDatabaseMajorVersion() < 8)))
+                || (product.getDatabaseProductName().contains("MariaDB")
+                        && (product.getDatabaseMajorVersion() == 10 && product.getDatabaseMinorVersion() < 3));
     }
 
     @Override

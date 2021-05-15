@@ -20,6 +20,38 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- DB adapters included by default with this library -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-hsql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-pg</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-mysql</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-mysql8</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-oracle</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>jqm-dbadapter-db2</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Fetch files with HTTP API -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>
@@ -56,49 +88,7 @@
             <version>${slf4j.version}</version>
         </dependency>
 
-        <!-- Tests -->
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-container-native</artifactId>
-            <version>${pax.exam.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-junit4</artifactId>
-            <version>${pax.exam.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.exam</groupId>
-            <artifactId>pax-exam-link-mvn</artifactId>
-            <version>${pax.exam.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-aether</artifactId>
-            <version>${pax.url.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.url</groupId>
-            <artifactId>pax-url-wrap</artifactId>
-            <version>${pax.url.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-            <version>${felix.version}</version>
-            <scope>test</scope>
-        </dependency>
-
+        <!-- Test -->
         <dependency>
             <groupId>org.hsqldb</groupId>
             <artifactId>hsqldb</artifactId>

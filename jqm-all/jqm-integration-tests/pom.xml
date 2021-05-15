@@ -337,7 +337,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>jqm-api-client-jdbc</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <!-- Engine plugins for the base distribution -->
@@ -362,18 +361,6 @@
         <dependency>
             <groupId>com.enioka.jqm</groupId>
             <artifactId>jqm-jndi-context</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jqm-impl-hsql</artifactId>
-            <version>${project.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>jqm-impl-pg</artifactId>
             <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>

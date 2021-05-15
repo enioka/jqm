@@ -16,6 +16,7 @@ import javax.sql.DataSource;
 import com.enioka.jqm.loader.Loader;
 
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -219,7 +220,7 @@ public class Db
         initQueries();
 
         // Create or upgrade schema
-        boolean upgrade = Boolean.parseBoolean(p.getProperty("com.enioka.jqm.jdbc.allowSchemaUpdate", "true"));
+        boolean upgrade = Boolean.parseBoolean(p.getProperty("com.enioka.jqm.jdbc.allowSchemaUpdate", "false"));
         if (upgrade)
         {
             dbUpgrade();
@@ -404,7 +405,7 @@ public class Db
                 jqmlogger.info("Database adapter search: using OSGi services");
                 try
                 {
-                    BundleContext context = org.osgi.framework.FrameworkUtil.getBundle(getClass()).getBundleContext();
+                    BundleContext context = FrameworkUtil.getBundle(getClass()).getBundleContext();
                     Loader<DbAdapter> loader = new Loader<DbAdapter>(context, DbAdapter.class, "(Adapter-Type=*)");
                     loader.start();
 
