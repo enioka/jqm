@@ -485,7 +485,7 @@ final class Helpers
         if ("false".equals(terse))
         {
             jqmlogger.info("Global cluster parameters are as follow:");
-            List<GlobalParameter> prms = GlobalParameter.select(cnx, "globalprm_select_all");
+            List<GlobalParameter> prms = GlobalParameter.selectAll(cnx);
             for (GlobalParameter prm : prms)
             {
                 jqmlogger.info(String.format("\t%1$s = %2$s", prm.getKey(), prm.getValue()));

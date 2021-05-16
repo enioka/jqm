@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.enioka.api.admin.GlobalParameterDto;
+import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.jdbc.Db;
 import com.enioka.jqm.jdbc.DbConn;
 
@@ -60,20 +60,47 @@ public class TestCrud
     @Test
     public void testGP()
     {
-        GlobalParameterDto dto = new GlobalParameterDto();
+        GlobalParameter dto = new GlobalParameter();
         dto.setKey("houba");
         dto.setValue("hop");
-        MetaService.upsertGlobalParameter(cnx, dto);
+        dto.upsert(cnx);
 
-        GlobalParameterDto dto2 = new GlobalParameterDto();
+        GlobalParameter dto2 = new GlobalParameter();
         dto2.setKey("key2");
         dto2.setValue("value2");
-        MetaService.upsertGlobalParameter(cnx, dto2);
+        dto2.upsert(cnx);
         cnx.commit();
 
-        Assert.assertEquals("hop", MetaService.getGlobalParameter(cnx, "houba").getValue());
-        Assert.assertEquals("hop", MetaService.getGlobalParameter(cnx, MetaService.getGlobalParameter(cnx, "houba").getId()).getValue());
-        Assert.assertEquals(2, MetaService.getGlobalParameter(cnx).size());
+        Assert.assertEquals("hop", GlobalParameter.getParameter(cnx, "houba", "none"));
+        Assert.assertEquals(2, GlobalParameter.selectAll(cnx).size());
+    }
+
+    @Test
+    public void testUpdateById()
+    {
+        GlobalParameter dto = new GlobalParameter();
+        dto.setKey("houba");
+        dto.setValue("hop");
+        dto.upsert(cnx);
+
+        Assert.assertNull(dto.getId());
+
+        dto.getByKey(cnx, "houba");
+        Assert.assertNotNull(dto.getId());
+
+        int id = dto.getId();
+
+        dto.setKey("marsu");
+        dto.setValue("usram");
+        dto.upsert(cnx);
+
+        dto = null;
+
+        GlobalParameter dto2 = new GlobalParameter();
+        dto2.getById(cnx, id);
+
+        Assert.assertEquals("marsu", dto2.getKey());
+        Assert.assertEquals("usram", dto2.getValue());
     }
 
 }

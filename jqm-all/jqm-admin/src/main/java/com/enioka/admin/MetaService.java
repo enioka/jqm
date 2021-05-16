@@ -7,7 +7,6 @@ import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
-import com.enioka.api.admin.GlobalParameterDto;
 import com.enioka.api.admin.JndiObjectResourceDto;
 import com.enioka.api.admin.JobDefDto;
 import com.enioka.api.admin.NodeDto;
@@ -100,93 +99,13 @@ public class MetaService
     // GLOBAL PARAMETER
     ///////////////////////////////////////////////////////////////////////////
 
-    public static void deleteGlobalParameter(DbConn cnx, int id)
-    {
-        QueryResult qr = cnx.runUpdate("globalprm_delete_by_id", id);
-        if (qr.nbUpdated != 1)
-        {
-            cnx.setRollbackOnly();
-            throw new JqmAdminApiUserException("no item with ID " + id);
-        }
-    }
 
-    public static void upsertGlobalParameter(DbConn cnx, GlobalParameterDto dto)
+    public static void syncGlobalParameters(DbConn cnx, List<GlobalParameter> dtos)
     {
-        if (dto == null || dto.getKey() == null || dto.getKey().isEmpty() || dto.getValue() == null || dto.getValue().isEmpty())
-        {
-            throw new IllegalArgumentException("invalid dto object");
-        }
-        GlobalParameter.setParameter(cnx, dto.getKey(), dto.getValue());
-    }
-
-    private static GlobalParameterDto mapGlobalParameter(ResultSet rs) throws SQLException
-    {
-        GlobalParameterDto res = new GlobalParameterDto();
-        res.setId(rs.getInt(1));
-        res.setKey(rs.getString(2));
-        res.setValue(rs.getString(3));
-        return res;
-    }
-
-    private static GlobalParameterDto getGlobalParameter(DbConn cnx, String query_key, Object key)
-    {
-        ResultSet rs = cnx.runSelect(query_key, key);
-        try
-        {
-            if (!rs.next())
-            {
-                throw new NoResultException("The query returned zero rows when one was expected.");
-            }
-            GlobalParameterDto res = mapGlobalParameter(rs);
-            if (rs.next())
-            {
-                throw new NonUniqueResultException("The query returned more than one row when one was expected");
-            }
-
-            rs.close();
-            return res;
-        }
-        catch (SQLException e)
-        {
-            throw new JqmAdminApiInternalException("An error occurred while querying the database", e);
-        }
-    }
-
-    public static GlobalParameterDto getGlobalParameter(DbConn cnx, String key)
-    {
-        return getGlobalParameter(cnx, "globalprm_select_by_key", key);
-    }
-
-    public static GlobalParameterDto getGlobalParameter(DbConn cnx, Integer key)
-    {
-        return getGlobalParameter(cnx, "globalprm_select_by_id", key);
-    }
-
-    public static List<GlobalParameterDto> getGlobalParameter(DbConn cnx)
-    {
-        ResultSet rs = cnx.runSelect("globalprm_select_all");
-        List<GlobalParameterDto> res = new ArrayList<>();
-        try
-        {
-            while (rs.next())
-            {
-                res.add(mapGlobalParameter(rs));
-            }
-            rs.close();
-        }
-        catch (SQLException e)
-        {
-            throw new JqmAdminApiInternalException("An error occurred while querying the database", e);
-        }
-        return res;
-    }
-
-    public static void syncGlobalParameters(DbConn cnx, List<GlobalParameterDto> dtos)
-    {
-        for (GlobalParameterDto existing : getGlobalParameter(cnx))
+        for (GlobalParameter existing : GlobalParameter.selectAll(cnx))
         {
             boolean foundInNewSet = false;
-            for (GlobalParameterDto newdto : dtos)
+            for (GlobalParameter newdto : dtos)
             {
                 if (newdto.getId() != null && newdto.getId().equals(existing.getId()))
                 {
@@ -197,13 +116,13 @@ public class MetaService
 
             if (!foundInNewSet)
             {
-                deleteGlobalParameter(cnx, existing.getId());
+                GlobalParameter.deleteGlobalParameter(cnx, existing.getId());
             }
         }
 
-        for (GlobalParameterDto dto : dtos)
+        for (GlobalParameter dto : dtos)
         {
-            upsertGlobalParameter(cnx, dto);
+            dto.upsert(cnx);
         }
     }
 

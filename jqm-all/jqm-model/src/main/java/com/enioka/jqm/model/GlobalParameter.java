@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import com.enioka.jqm.jdbc.DatabaseException;
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.NoResultException;
@@ -36,6 +38,7 @@ import com.enioka.jqm.jdbc.QueryResult;
  * {@link Node}).<br>
  * Parameters are simple key/value string pairs.
  */
+@XmlRootElement
 public class GlobalParameter implements Serializable
 {
     private static final long serialVersionUID = 2619971486012565203L;
@@ -88,6 +91,8 @@ public class GlobalParameter implements Serializable
         return id;
     }
 
+    public void setId(Integer id) { this.id = id; }
+
     /**
      * When the object was last modified. Read only.
      */
@@ -105,6 +110,71 @@ public class GlobalParameter implements Serializable
     }
 
     /**
+     * Update or insert current object by dumping this to DB.
+     */
+    public void upsert(DbConn cnx)
+    {
+        if (this.getKey() == null || this.getKey().isEmpty() || this.getValue() == null || this.getValue().isEmpty())
+        {
+            throw new IllegalArgumentException("invalid object");
+        }
+        if (this.getId() == null)
+        {
+            GlobalParameter.setParameter(cnx, this.getKey(), this.getValue());
+        }
+        else
+        {
+            QueryResult qr = cnx.runUpdate("globalprm_update_key_value_by_id", this.getKey(), this.getValue(), this.getId());
+            if (qr.nbUpdated == 0)
+            {
+                cnx.setRollbackOnly();
+                throw new NoResultException("no item with ID " + this.getId());
+            }
+        }
+    }
+
+    /**
+     * Get GlobalParameter by id from DB and fill object.
+     */
+    public void getById(DbConn cnx, Integer id)
+    {
+        this.getBy(cnx, "globalprm_select_by_id", id);
+    }
+
+    /**
+     * Get GlobalParameter by key name from DB and fill object.
+     */
+    public void getByKey(DbConn cnx, String key)
+    {
+        this.getBy(cnx,"globalprm_select_by_key", key);
+    }
+
+    private void getBy(DbConn cnx, String query, Object arg)
+    {
+        try
+        {
+            ResultSet rs = cnx.runSelect(query, arg);
+            if (rs.next())
+            {
+                this.id = rs.getInt(1);
+                this.key = rs.getString(2);
+                this.value = rs.getString(3);
+                Calendar c = Calendar.getInstance();
+                c.setTimeInMillis(rs.getTimestamp(4).getTime());
+                this.lastModified = c;
+            }
+            else
+            {
+                throw new NoResultException("no item with " + arg);
+            }
+        }
+        catch (SQLException e)
+        {
+            throw new DatabaseException(e);
+        }
+   }
+
+    /**
      * Create a new GP entry in the database. No commit performed.
      */
     public static GlobalParameter create(DbConn cnx, String key, String value)
@@ -117,7 +187,18 @@ public class GlobalParameter implements Serializable
         return res;
     }
 
-    public static List<GlobalParameter> select(DbConn cnx, String query_key, Object... args)
+    /**
+     * Retrieve a list containing all GlobalParameters
+     */
+    public static List<GlobalParameter> selectAll(DbConn cnx)
+    {
+        return GlobalParameter.select(cnx, "globalprm_select_all");
+    }
+
+    /**
+     * Retrieve a list of GlobalParamter
+     */
+    private static List<GlobalParameter> select(DbConn cnx, String query_key, Object... args)
     {
         List<GlobalParameter> res = new ArrayList<>();
         try
@@ -126,7 +207,6 @@ public class GlobalParameter implements Serializable
             while (rs.next())
             {
                 GlobalParameter tmp = new GlobalParameter();
-
                 tmp.id = rs.getInt(1);
                 tmp.key = rs.getString(2);
                 tmp.value = rs.getString(3);
@@ -145,11 +225,17 @@ public class GlobalParameter implements Serializable
     }
 
     /**
+     * Retrieve a GlobalParamter object by its id.
+     */
+    public static GlobalParameter getParameter(DbConn cnx, Integer id)
+    {
+        GlobalParameter res = new GlobalParameter();
+        res.getById(cnx, id);
+        return res;
+    }
+
+    /**
      * Retrieve the value of a single-valued parameter.
-     *
-     * @param key
-     * @param defaultValue
-     * @param cnx
      */
     public static String getParameter(DbConn cnx, String key, String defaultValue)
     {
@@ -163,6 +249,10 @@ public class GlobalParameter implements Serializable
         }
     }
 
+    /**
+     * Update a parameter's vaue associated with the keyname given in parameter.
+     * If not exists, insert a new parameter.
+     */
     public static void setParameter(DbConn cnx, String key, String value)
     {
         QueryResult qr = cnx.runUpdate("globalprm_update_value_by_key", value, key);
@@ -171,4 +261,18 @@ public class GlobalParameter implements Serializable
             create(cnx, key, value);
         }
     }
+
+    /**
+     * Delete a parameter from DB by its id
+     */
+    public static void deleteGlobalParameter(DbConn cnx, int id)
+    {
+        QueryResult qr = cnx.runUpdate("globalprm_delete_by_id", id);
+        if (qr.nbUpdated != 1)
+        {
+            cnx.setRollbackOnly();
+            throw new NoResultException("no item with ID " + id);
+        }
+    }
+
 }

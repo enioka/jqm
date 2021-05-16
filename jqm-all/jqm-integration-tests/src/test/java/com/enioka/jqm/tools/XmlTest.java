@@ -29,6 +29,7 @@ import com.enioka.api.admin.NodeDto;
 import com.enioka.api.admin.QueueDto;
 import com.enioka.api.admin.QueueMappingDto;
 import com.enioka.jqm.jdbc.NoResultException;
+import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.model.JobDef;
 import com.enioka.jqm.model.Queue;
 import com.enioka.jqm.test.helpers.CreationTools;
@@ -350,7 +351,7 @@ public class XmlTest extends JqmBaseTest
 
         Assert.assertEquals("INFO", node.getRootLogLevel());
 
-        Assert.assertEquals("value1", MetaService.getGlobalParameter(cnx, "key1").getValue());
+        Assert.assertEquals("value1", GlobalParameter.getParameter(cnx, "key1", "none"));
 
         QueueMappingDto queueMapping = null;
         for (QueueMappingDto qm : MetaService.getQueueMappings(cnx))
@@ -404,7 +405,7 @@ public class XmlTest extends JqmBaseTest
 
         Assert.assertEquals("WARNING", node.getRootLogLevel());
 
-        Assert.assertEquals("value2", MetaService.getGlobalParameter(cnx, "key1").getValue());
+        Assert.assertEquals("value2", GlobalParameter.getParameter(cnx, "key1", "none"));
 
         queueMapping = null;
         for (QueueMappingDto qm : MetaService.getQueueMappings(cnx))

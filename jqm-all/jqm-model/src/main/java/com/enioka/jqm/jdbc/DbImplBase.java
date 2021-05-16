@@ -16,12 +16,12 @@ class DbImplBase
      *  </ul>
      */
     static Map<String, String> queries = new HashMap<>();
-    
+
     static {
         // VERSION
         queries.put("version_insert", "INSERT INTO __T__VERSION(ID, COMPONENT, VERSION_D1, COMPAT_D1, INSTALL_DATE) VALUES(JQM_PK.nextval, 'SCHEMA', ?, ?, CURRENT_TIMESTAMP)");
         queries.put("version_select_latest", "SELECT v1.VERSION_D1, v1.COMPAT_D1 FROM __T__VERSION v1 WHERE v1.ID = (SELECT MAX(v2.ID) AS OID FROM __T__VERSION v2 WHERE v2.COMPONENT='SCHEMA')");
-        
+
         // NODE
         queries.put("node_insert", "INSERT INTO __T__NODE(ID, REPO_DELIVERABLE, DNS, ENABLED, JMX_REGISTRY_PORT, JMX_SERVER_PORT, "
                 + "LOAD_API_ADMIN, LOAD_API_CLIENT, LOAD_API_SIMPLE, NAME, PORT, REPO_JOB_DEF, ROOT_LOG_LEVEL, STOP, REPO_TMP) "
@@ -49,7 +49,7 @@ class DbImplBase
         queries.put("node_select_by_key", queries.get("node_select_all") + " WHERE NAME=?");
         queries.put("node_select_by_id", queries.get("node_select_all") + " WHERE ID=?");
         queries.put("node_select_connectdata_by_key", "SELECT DNS, PORT FROM __T__NODE WHERE NAME=?");
-        
+
         // QUEUE
         queries.put("q_insert", "INSERT INTO __T__QUEUE(ID, DEFAULT_QUEUE, DESCRIPTION, NAME) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("q_delete_all", "DELETE FROM __T__QUEUE");
@@ -63,7 +63,7 @@ class DbImplBase
         queries.put("q_select_default", "SELECT ID, DEFAULT_QUEUE, DESCRIPTION, NAME FROM __T__QUEUE WHERE DEFAULT_QUEUE=true");
         queries.put("q_select_by_key", "SELECT ID, DEFAULT_QUEUE, DESCRIPTION, NAME FROM __T__QUEUE WHERE NAME=?");
         queries.put("q_select_by_id", "SELECT ID, DEFAULT_QUEUE, DESCRIPTION, NAME FROM __T__QUEUE WHERE ID=?");
-        
+
         // DEPLOYMENT
         queries.put("dp_insert", "INSERT INTO __T__QUEUE_NODE_MAPPING(ID, ENABLED, LAST_MODIFIED, MAX_THREAD, POLLING_INTERVAL, NODE, QUEUE) VALUES(JQM_PK.nextval, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)");
         queries.put("dp_delete_all", "DELETE FROM __T__QUEUE_NODE_MAPPING");
@@ -83,7 +83,7 @@ class DbImplBase
         queries.put("dp_select_all_with_names", "SELECT dp.ID, dp.ENABLED, dp.LAST_MODIFIED, dp.MAX_THREAD, dp.POLLING_INTERVAL, dp.NODE, dp.QUEUE, n.NAME, q.NAME FROM __T__QUEUE_NODE_MAPPING dp LEFT JOIN __T__NODE n ON n.ID=dp.NODE LEFT JOIN __T__QUEUE q ON q.ID=dp.QUEUE ");
         queries.put("dp_select_with_names_by_id", queries.get("dp_select_all_with_names") + " WHERE dp.ID=?");
         queries.put("dp_select_with_names_by_node_id", queries.get("dp_select_all_with_names") + " WHERE dp.NODE=?");
-        
+
         // CL
         queries.put("cl_insert", "INSERT INTO __T__CL(ID, NAME, CHILD_FIRST, HIDDEN_CLASSES, TRACING, PERSISTENT, ALLOWED_RUNNERS) VALUES(JQM_PK.nextval, ?, ?, ?, ?, ?, ?)");
         queries.put("cl_delete_all", "DELETE FROM __T__CL");
@@ -92,14 +92,14 @@ class DbImplBase
         queries.put("cl_select_all", "SELECT ID, NAME, CHILD_FIRST, HIDDEN_CLASSES, TRACING, PERSISTENT, ALLOWED_RUNNERS FROM __T__CL ");
         queries.put("cl_select_by_id", queries.get("cl_select_all") + " WHERE ID=?");
         queries.put("cl_select_by_key", queries.get("cl_select_all") + " WHERE NAME=?");
-        
+
         // CL EVENT HANDLER
         queries.put("cleh_insert", "INSERT INTO __T__CL_HANDLER(ID, EVENT_TYPE, CLASS_NAME, CL) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("cleh_delete_all", "DELETE FROM __T__CL_HANDLER");
         queries.put("cleh_delete_all_for_cl", "DELETE FROM __T__CL_HANDLER WHERE CL=?");
         queries.put("cleh_select_all", "SELECT ID, EVENT_TYPE, CLASS_NAME, CL FROM __T__CL_HANDLER ");
         queries.put("cleh_select_all_for_cl", queries.get("cleh_select_all") + " WHERE CL=? ORDER BY ID");
-        
+
         // CL EVENT HANDLER PARAMETER
         queries.put("clehprm_insert", "INSERT INTO __T__CL_HANDLER_PARAMETER(ID, KEYNAME, VALUE, CL_HANDLER) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("clehprm_delete_all", "DELETE FROM __T__CL_HANDLER_PARAMETER");
@@ -107,7 +107,7 @@ class DbImplBase
         queries.put("clehprm_delete_all_for_cl", "DELETE FROM __T__CL_HANDLER_PARAMETER WHERE CL_HANDLER IN(SELECT h.ID FROM CL_HANDLER h WHERE h.CL=?)"); // subquery - better multi db support.
         queries.put("clehprm_select_all", "SELECT ID, KEYNAME, VALUE, CL_HANDLER FROM __T__CL_HANDLER_PARAMETER ");
         queries.put("cleh_select_all_for_cleh", queries.get("clehprm_select_all") + " WHERE CL_HANDLER=?");
-        
+
         // JOB DEF
         queries.put("jd_insert", "INSERT INTO __T__JOB_DEFINITION(ID, APPLICATION, JD_KEY, CL, "
                 + "DESCRIPTION, ENABLED, EXTERNAL, HIGHLANDER, "
@@ -132,7 +132,7 @@ class DbImplBase
         queries.put("jd_select_by_key", queries.get("jd_select_all") + " WHERE JD_KEY=?");
         queries.put("jd_select_by_tag_app", queries.get("jd_select_all") + " WHERE APPLICATION=?");
         queries.put("jd_select_by_queue", queries.get("jd_select_all") + " WHERE QUEUE=?");
-        
+
         // JOB DEF PRM
         queries.put("jdprm_insert", "INSERT INTO __T__JOB_DEFINITION_PARAMETER(ID, KEYNAME, VALUE, JOBDEF) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("jdprm_delete_all", "DELETE FROM __T__JOB_DEFINITION_PARAMETER");
@@ -140,7 +140,7 @@ class DbImplBase
         queries.put("jdprm_select_all_for_jd", "SELECT ID, KEYNAME, VALUE, JOBDEF FROM __T__JOB_DEFINITION_PARAMETER WHERE JOBDEF=?");
         queries.put("jdprm_select_all_for_jd_list", "SELECT ID, KEYNAME, VALUE, JOBDEF FROM __T__JOB_DEFINITION_PARAMETER WHERE JOBDEF IN(UNNEST(?))");
         queries.put("jdprm_select_all", "SELECT ID, KEYNAME, VALUE, JOBDEF FROM __T__JOB_DEFINITION_PARAMETER ORDER BY JOBDEF");
-        
+
         // SCHEDULED JOBS
         queries.put("sj_insert", "INSERT INTO __T__JOB_SCHEDULE(ID, CRON_EXPRESSION, JOBDEF, QUEUE, PRIORITY, LAST_UPDATED) VALUES(JQM_PK.nextval, ?, ?, ?, ?, CURRENT_TIMESTAMP)");
         queries.put("sj_delete_all", "DELETE FROM __T__JOB_SCHEDULE");
@@ -155,7 +155,7 @@ class DbImplBase
         queries.put("sj_select_updated",  "SELECT ID, CRON_EXPRESSION, JOBDEF, QUEUE, PRIORITY, LAST_UPDATED FROM __T__JOB_SCHEDULE WHERE LAST_UPDATED > ?");
         queries.put("sj_select_for_jd",  "SELECT ID, CRON_EXPRESSION, JOBDEF, QUEUE, PRIORITY, LAST_UPDATED FROM __T__JOB_SCHEDULE WHERE JOBDEF = ?");
         queries.put("sj_select_for_jd_list",  "SELECT ID, CRON_EXPRESSION, JOBDEF, QUEUE, PRIORITY, LAST_UPDATED FROM __T__JOB_SCHEDULE WHERE JOBDEF IN(UNNEST(?)) ORDER BY ID");
-        
+
         // SCHEDULED JOBS PARAMETERS
         queries.put("sjprm_insert", "INSERT INTO __T__JOB_SCHEDULE_PARAMETER(ID, KEYNAME, VALUE, JOB_SCHEDULE) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("sjprm_delete_all", "DELETE FROM __T__JOB_SCHEDULE_PARAMETER");
@@ -163,7 +163,7 @@ class DbImplBase
         queries.put("sjprm_delete_all_for_jd", "DELETE FROM __T__JOB_SCHEDULE_PARAMETER WHERE JOB_SCHEDULE IN (SELECT js.ID FROM __T__JOB_SCHEDULE js WHERE js.JOBDEF = ?)");
         queries.put("sjprm_select_all", "SELECT ID, KEYNAME, VALUE, JOB_SCHEDULE FROM __T__JOB_SCHEDULE_PARAMETER ");
         queries.put("sjprm_select_for_sj_list",  queries.get("sjprm_select_all") + " WHERE JOB_SCHEDULE IN(UNNEST(?)) ORDER BY JOB_SCHEDULE, ID");
-        
+
         // JOB INSTANCE
         queries.put("ji_insert_enqueue", "INSERT INTO __T__JOB_INSTANCE (ID, DATE_ENQUEUE, EMAIL, APPLICATION, "
                 + "KEYWORD1, KEYWORD2, KEYWORD3, MODULE, INTERNAL_POSITION, PARENT, PROGRESS, SESSION_KEY, "
@@ -213,11 +213,11 @@ class DbImplBase
         queries.put("ji_select_execution_date_by_id", "SELECT DATE_START FROM __T__JOB_INSTANCE WHERE ID=?");
         queries.put("ji_select_cnx_data_by_id", "SELECT DNS||':'||PORT AS HOST FROM __T__JOB_INSTANCE ji LEFT JOIN __T__NODE n ON ji.NODE = n.ID WHERE ji.ID=?");
         queries.put("ji_select_instructions_by_node", "SELECT ji.ID, ji.INSTRUCTION FROM __T__JOB_INSTANCE ji WHERE ji.STATUS='RUNNING' AND ji.INSTRUCTION <> 'RUN' AND ji.NODE=?");
-        
+
         queries.put("ji_update_delayed", "UPDATE __T__JOB_INSTANCE SET STATUS='SUBMITTED' WHERE STATUS='SCHEDULED' AND DATE_NOT_BEFORE <= CURRENT_TIMESTAMP");
         queries.put("ji_select_poll",queries.get("ji_select_all") + " WHERE ji.QUEUE = ? AND ji.STATUS='SUBMITTED' ORDER BY ji.PRIORITY DESC, ji.INTERNAL_POSITION");
         queries.put("ji_update_status_by_id", "UPDATE __T__JOB_INSTANCE SET STATUS='ATTRIBUTED', NODE=? WHERE STATUS='SUBMITTED' AND ID=?");
-        
+
         // HISTORY
         queries.put("history_insert_with_end_date", "INSERT INTO __T__HISTORY(ID, JD_APPLICATION, JD_KEY, DATE_ATTRIBUTION, EMAIL, "
                 + "DATE_END, DATE_ENQUEUE, DATE_START, HIGHLANDER, INSTANCE_APPLICATION, INSTANCE_KEYWORD1, "
@@ -226,7 +226,7 @@ class DbImplBase
                 + "NODE, QUEUE, FROM_SCHEDULE, PRIORITY, DATE_NOT_BEFORE) "
                 + "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         queries.put("history_insert", queries.get("history_insert_with_end_date").replace("(?, ?, ?, ?, ?, ?",  "(?, ?, ?, ?, ?, CURRENT_TIMESTAMP"));
-        
+
         queries.put("history_delete_all", "DELETE FROM __T__HISTORY");
         queries.put("history_delete_by_id", "DELETE FROM __T__HISTORY WHERE ID=?");
         queries.put("history_select_count_all", "SELECT COUNT(1) FROM __T__HISTORY");
@@ -237,7 +237,7 @@ class DbImplBase
         queries.put("history_select_reenqueue_by_id", "SELECT JD_APPLICATION, JD_KEY, EMAIL, INSTANCE_KEYWORD1, INSTANCE_KEYWORD2, INSTANCE_KEYWORD3, INSTANCE_MODULE, PARENT, SESSION_KEY, USERNAME, STATUS FROM __T__HISTORY WHERE ID=?");
         queries.put("history_select_cnx_data_by_id", "SELECT DNS||':'||PORT AS HOST FROM __T__HISTORY h LEFT JOIN __T__NODE n ON h.NODE = n.ID WHERE h.ID=?");
         queries.put("history_select_state_by_id", "SELECT STATUS FROM __T__HISTORY WHERE ID=?");
-        
+
         // DELIVERABLE
         queries.put("deliverable_insert",  "INSERT INTO __T__DELIVERABLE(ID, FILE_FAMILY, PATH, JOB_INSTANCE, ORIGINAL_FILE_NAME, RANDOM_ID) VALUES(JQM_PK.nextval, ?, ?, ?, ?, ?)");
         queries.put("deliverable_delete_all", "DELETE FROM __T__DELIVERABLE");
@@ -245,14 +245,14 @@ class DbImplBase
         queries.put("deliverable_select_by_id", queries.get("deliverable_select_all") +  " WHERE ID=?");
         queries.put("deliverable_select_by_randomid", queries.get("deliverable_select_all") +  " WHERE RANDOM_ID=?");
         queries.put("deliverable_select_all_for_ji", queries.get("deliverable_select_all") +  " WHERE JOB_INSTANCE=?");
-        
+
         // RUNTIME PRM
         queries.put("jiprm_insert", "INSERT INTO __T__JOB_INSTANCE_PARAMETER(ID, JOB_INSTANCE, KEYNAME, VALUE) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("jiprm_delete_all", "DELETE FROM __T__JOB_INSTANCE_PARAMETER ");
         queries.put("jiprm_delete_by_ji",queries.get("jiprm_delete_all") + " WHERE JOB_INSTANCE=?");
         queries.put("jiprm_select_by_ji", "SELECT ID, JOB_INSTANCE, KEYNAME, VALUE FROM __T__JOB_INSTANCE_PARAMETER WHERE JOB_INSTANCE=?");
         queries.put("jiprm_select_by_ji_list", "SELECT ID, JOB_INSTANCE, KEYNAME, VALUE FROM __T__JOB_INSTANCE_PARAMETER WHERE JOB_INSTANCE IN(UNNEST(?))");
-        
+
         // MESSAGE
         queries.put("message_insert",  "INSERT INTO __T__MESSAGE(ID, JOB_INSTANCE, TEXT_MESSAGE) VALUES(JQM_PK.nextval, ?, ?)");
         queries.put("message_delete_all", "DELETE FROM __T__MESSAGE");
@@ -260,7 +260,7 @@ class DbImplBase
         queries.put("message_select_all", "SELECT ID, JOB_INSTANCE, TEXT_MESSAGE FROM __T__MESSAGE");
         queries.put("message_select_by_ji_list", queries.get("message_select_all") + " WHERE JOB_INSTANCE IN(UNNEST(?))");
         queries.put("message_select_count_all", "SELECT COUNT(1) FROM __T__MESSAGE");
-        
+
         // JNDI
         queries.put("jndi_insert", "INSERT INTO __T__JNDI_OBJECT_RESOURCE(ID, AUTH, DESCRIPTION, FACTORY, LAST_MODIFIED, NAME, SINGLETON, TEMPLATE, TYPE) VALUES(JQM_PK.nextval, 'CONTAINER', ?, ?, CURRENT_TIMESTAMP, ?, ?, ?, ?)");
         queries.put("jndi_delete_all", "DELETE FROM __T__JNDI_OBJECT_RESOURCE");
@@ -271,7 +271,7 @@ class DbImplBase
         queries.put("jndi_select_all", "SELECT ID, NAME, AUTH, TYPE, FACTORY, DESCRIPTION, TEMPLATE, SINGLETON, LAST_MODIFIED FROM __T__JNDI_OBJECT_RESOURCE");
         queries.put("jndi_select_by_key", queries.get("jndi_select_all") + " WHERE NAME=?");
         queries.put("jndi_select_by_id", queries.get("jndi_select_all") + " WHERE ID=?");
-        
+
         // JNDI PRM
         queries.put("jndiprm_insert", "INSERT INTO __T__JNDI_OR_PARAMETER(ID, KEYNAME, LAST_MODIFIED, VALUE, JNDI_OR) VALUES(JQM_PK.nextval, ?, CURRENT_TIMESTAMP, ?, ?)");
         queries.put("jndiprm_delete_all", "DELETE FROM __T__JNDI_OR_PARAMETER");
@@ -281,12 +281,12 @@ class DbImplBase
         queries.put("jndiprm_update_changed_by_id", "UPDATE __T__JNDI_OR_PARAMETER SET VALUE=?, LAST_MODIFIED=CURRENT_TIMESTAMP WHERE JNDI_OR=? AND KEYNAME=? AND NOT (VALUE=?)");
         queries.put("jndiprm_select_all_in_jndisrc", "SELECT ID, KEYNAME, LAST_MODIFIED, VALUE FROM __T__JNDI_OR_PARAMETER WHERE JNDI_OR=?");
         queries.put("jndiprm_select_all_in_jndisrc_list", "SELECT ID, KEYNAME, LAST_MODIFIED, VALUE, JNDI_OR FROM __T__JNDI_OR_PARAMETER WHERE JNDI_OR IN(UNNEST(?))");
-        
+
         // PKI
         queries.put("pki_insert", "INSERT INTO __T__PKI(ID, PEM_CERT, PEM_PK, PRETTY_NAME) VALUES(JQM_PK.nextval, ?, ?, ?)");
         queries.put("pki_delete_all", "DELETE FROM __T__PKI");
         queries.put("pki_select_by_key", "SELECT ID, PEM_CERT, PEM_PK, PRETTY_NAME FROM __T__PKI WHERE PRETTY_NAME=?");
-        
+
         // R-ROLE
         queries.put("role_insert", "INSERT INTO __T__RROLE(ID, DESCRIPTION, NAME) VALUES(JQM_PK.nextval, ?, ?)");
         queries.put("role_delete_all", "DELETE FROM __T__RROLE");
@@ -296,14 +296,14 @@ class DbImplBase
         queries.put("role_select_all_for_user", "SELECT r.ID, r.NAME, r.DESCRIPTION FROM __T__RROLE r RIGHT JOIN __T__RROLE_RUSER a ON a.ROLE = r.ID WHERE a.ACCOUNT=?");
         queries.put("role_select_id_for_user_list", "SELECT a.ROLE, a.ACCOUNT FROM __T__RROLE_RUSER a WHERE a.ACCOUNT IN(UNNEST(?))");
         queries.put("role_select_by_key", "SELECT ID, NAME, DESCRIPTION FROM __T__RROLE r WHERE NAME=?");
-        
+
         // R-PERMISSION
         queries.put("perm_insert", "INSERT INTO __T__RPERMISSION(ID, NAME, ROLE) VALUES(JQM_PK.nextval, ?, ?)");
         queries.put("perm_delete_all", "DELETE FROM __T__RPERMISSION");
         queries.put("perm_delete_for_role", "DELETE FROM __T__RPERMISSION WHERE ROLE=?");
         queries.put("perm_select_all_in_role", "SELECT ID, NAME, ROLE FROM __T__RPERMISSION WHERE ROLE=?");
         queries.put("perm_select_all_in_role_list", "SELECT ID, NAME, ROLE FROM __T__RPERMISSION WHERE ROLE IN(UNNEST(?))");
-        
+
         // R-USER
         queries.put("user_insert", "INSERT INTO __T__RUSER(ID, CREATION_DATE, EMAIL, EXPIRATION_DATE, FREETEXT, HASHSALT, INTERNAL, LAST_MODIFIED, LOCKED, LOGIN, PASSWORD) VALUES(JQM_PK.nextval, CURRENT_TIMESTAMP, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)");
         queries.put("user_delete_all", "DELETE FROM __T__RUSER");
@@ -323,9 +323,10 @@ class DbImplBase
         queries.put("user_select_count_by_key", "SELECT COUNT(1) FROM __T__RUSER WHERE LOGIN=?");
         queries.put("user_select_id_by_key", "SELECT ID FROM __T__RUSER WHERE LOGIN=?");
         queries.put("user_select_count_using_role", "SELECT COUNT(1) FROM __T__RROLE_RUSER WHERE ROLE=?");
-        
+
         // GLOBAL PRM
         queries.put("globalprm_insert", "INSERT INTO __T__GLOBAL_PARAMETER(ID, KEYNAME, VALUE, LAST_MODIFIED) VALUES(JQM_PK.nextval, ?, ?, CURRENT_TIMESTAMP)");
+        queries.put("globalprm_update_key_value_by_id", "UPDATE __T__GLOBAL_PARAMETER SET KEYNAME=?, VALUE=? WHERE ID=?");
         queries.put("globalprm_update_value_by_key", "UPDATE __T__GLOBAL_PARAMETER SET VALUE=?, LAST_MODIFIED=CURRENT_TIMESTAMP WHERE KEYNAME=?");
         queries.put("globalprm_delete_all", "DELETE FROM __T__GLOBAL_PARAMETER");
         queries.put("globalprm_delete_by_id", "DELETE FROM __T__GLOBAL_PARAMETER WHERE ID=?");
@@ -333,11 +334,11 @@ class DbImplBase
         queries.put("globalprm_select_by_key", queries.get("globalprm_select_all") + " WHERE KEYNAME=?");
         queries.put("globalprm_select_by_id", queries.get("globalprm_select_all") + " WHERE ID=?");
         queries.put("globalprm_select_count_modified_jetty", "SELECT COUNT(1) FROM __T__GLOBAL_PARAMETER WHERE LAST_MODIFIED > ? AND KEYNAME IN('disableWsApi', 'enableWsApiSsl', 'enableInternalPki', 'pfxPassword', 'enableWsApiAuth')");
-        
+
         // WITNESS
         queries.put("w_insert", "INSERT INTO __T__WITNESS(ID, KEYNAME, NODE, LATEST_CONTACT) VALUES(JQM_PK.nextval, 'SCHEDULER', ?, CURRENT_TIMESTAMP)");
         queries.put("w_update_take", "UPDATE __T__WITNESS SET NODE=?, LATEST_CONTACT=CURRENT_TIMESTAMP WHERE KEYNAME='SCHEDULER' AND (LATEST_CONTACT IS NULL OR NODE IS NULL OR NODE=? OR (NODE<>? AND LATEST_CONTACT < (CURRENT_TIMESTAMP - ? SECOND)))");
     }
-   
+
 }
 
