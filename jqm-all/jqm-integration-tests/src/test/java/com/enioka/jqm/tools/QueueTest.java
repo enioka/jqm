@@ -330,4 +330,24 @@ public class QueueTest extends JqmBaseTest
         Assert.assertEquals(0, TestHelpers.getQueueRunningCount(cnx));
         Assert.assertEquals(0, TestHelpers.getQueueAllCount(cnx));
     }
+
+    @Test
+    public void testStartingMultipleDefaultQueue()
+    {
+        // #364 : Configuration trap: cannot restart JQM after enabling two different default queues
+        try
+        {
+            // Add another default queeue
+            int qId = Queue.create(cnx, "AnotherDefaultQueue", " ", true);
+            cnx.commit();
+            addAndStartEngine();
+
+            // Has only one default queue
+            Assert.assertNotNull(TestHelpers.getDefaultQueueId(cnx));
+        }
+        catch (Exception e)
+        {
+            Assert.fail(e.getMessage());
+        }
+    }
 }

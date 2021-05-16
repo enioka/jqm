@@ -977,14 +977,31 @@ public class MetaService
 
     public static void upsertQueue(DbConn cnx, QueueDto dto)
     {
-        if (dto.getId() != null)
+        try
         {
-            cnx.runUpdate("q_update_changed_by_id", dto.isDefaultQueue(), dto.getDescription(), dto.getName(), dto.getId(),
-                    dto.isDefaultQueue(), dto.getDescription(), dto.getName());
+            boolean isUniqueDefault = false;
+            if (dto.isDefaultQueue())
+            {
+                ResultSet rs = null;
+                rs = cnx.runSelect("q_select_default");
+                if (!rs.next())
+                {
+                    isUniqueDefault = true;
+                }
+            }
+
+            if (dto.getId() != null)
+            {
+                cnx.runUpdate("q_update_changed_by_id", dto.isDefaultQueue(), dto.getDescription(), dto.getName(), dto.getId(),
+                        isUniqueDefault, dto.getDescription(), dto.getName());
+            } else
+            {
+                Queue.create(cnx, dto.getName(), dto.getDescription(), isUniqueDefault);
+            }
         }
-        else
+        catch (SQLException e)
         {
-            Queue.create(cnx, dto.getName(), dto.getDescription(), dto.isDefaultQueue());
+            throw new DatabaseException(e);
         }
     }
 

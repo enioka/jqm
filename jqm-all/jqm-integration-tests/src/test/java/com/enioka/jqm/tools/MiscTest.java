@@ -25,6 +25,8 @@ import javax.mail.Folder;
 import javax.mail.Session;
 import javax.mail.Store;
 
+import com.enioka.api.admin.QueueDto;
+import com.enioka.jqm.model.Queue;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Assert;
@@ -336,5 +338,38 @@ public class MiscTest extends JqmBaseTest
         Assert.assertEquals(0, MetaService.getJndiObjectResource(cnx).size());
 
         cnx.commit();
+    }
+
+    @Test
+    public void testMultipleDefaultQueue()
+    {
+        // Add two default queue
+        QueueDto q1 = new QueueDto();
+        q1.setName("AnotherDefaultQueue");
+        q1.setDescription("default");
+        q1.setDefaultQueue(true);
+
+        Assert.assertTrue(q1.isDefaultQueue());
+        MetaService.upsertQueue(cnx, q1);
+
+        // Should not explode
+        Assert.assertNotNull(TestHelpers.getDefaultQueueId(cnx));
+
+
+        List<QueueDto> queueDtoList = new ArrayList<>();
+        queueDtoList = MetaService.getQueues(cnx);
+
+        QueueDto q2 = new QueueDto();
+        q2.setName("YanDeQ");
+        q2.setDescription("Yet Another Default Queue");
+        q2.setDefaultQueue(true);
+        queueDtoList.add(q2);
+
+        Assert.assertTrue(q2.isDefaultQueue());
+
+        MetaService.syncQueues(cnx, queueDtoList);
+
+        // Should not explode
+        Assert.assertNotNull(TestHelpers.getDefaultQueueId(cnx));
     }
 }
