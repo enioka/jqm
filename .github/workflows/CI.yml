@@ -150,3 +150,58 @@ jobs:
               env:
                   DB: oracle
                   DB_VERSION: 12.2
+    publish_docker_image:
+        runs-on: ubuntu-latest
+        needs:
+            [
+                oracle_test,
+                db2_test,
+                mariadb_tests,
+                mysql_tests,
+                postgres_tests,
+                jdk_tests,
+            ]
+        # trigger job on merge only
+        if: github.event.pull_request.merged == true
+        steps:
+            - uses: actions/checkout@v2
+            - name: Login to Docker Hub
+              uses: docker/login-action@v1
+              with:
+                  username: ${{ secrets.DOCKER_USERNAME }}
+                  password: ${{ secrets.DOCKER_PASSWORD }}
+            # Push only for linux
+            - name: Build and push docker image
+              uses: docker/build-push-action@v2
+              with:
+                  push: true
+                  file: docker/linux/Dockerfile
+                  tags: enioka/jqm:nightly
+    publish_snapshot:
+        runs-on: ubuntu-latest
+        needs:
+            [
+                oracle_test,
+                db2_test,
+                mariadb_tests,
+                mysql_tests,
+                postgres_tests,
+                jdk_tests,
+            ]
+        # trigger job on merge only
+        if: github.event.pull_request.merged == true
+        steps:
+            - uses: actions/checkout@v2
+            - name: Set up Maven Central Repository
+              uses: actions/setup-java@v2
+              with:
+                  java-version: 11
+                  distribution: "zulu"
+                  server-id: sonatype-nexus-snapshots
+                  server-username: OSSRH_USERNAME
+                  server-password: OSSRH_PASSWORD
+            - name: Publish package
+              run: mvn deploy
+              env:
+                  OSSRH_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+                  OSSRH_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
