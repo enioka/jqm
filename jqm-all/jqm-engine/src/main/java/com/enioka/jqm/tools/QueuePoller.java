@@ -38,6 +38,7 @@ import org.slf4j.LoggerFactory;
 
 import com.enioka.jqm.jdbc.DbConn;
 import com.enioka.jqm.jdbc.QueryResult;
+import com.enioka.jqm.jdbc.DatabaseUnreachableException;
 import com.enioka.jqm.model.DeploymentParameter;
 import com.enioka.jqm.model.GlobalParameter;
 import com.enioka.jqm.model.JobInstance;
@@ -302,27 +303,28 @@ class QueuePoller implements Runnable, QueuePollerMBean
                     }
                 }
             }
+            catch (DatabaseUnreachableException e)
+            {
+                if (!run)
+                {
+                    break;
+                }
+                jqmlogger.error("connection to database lost - stopping poller");
+                jqmlogger.trace("connection error was:", e.getCause());
+                this.hasStopped = true;
+                this.engine.pollerRestartNeeded(this);
+                break;
+            }
             catch (RuntimeException e)
             {
                 if (!run)
                 {
                     break;
                 }
-                if (Helpers.testDbFailure(e))
-                {
-                    jqmlogger.error("connection to database lost - stopping poller");
-                    jqmlogger.trace("connection error was:", e.getCause());
-                    this.hasStopped = true;
-                    this.engine.pollerRestartNeeded(this);
-                    break;
-                }
-                else
-                {
-                    jqmlogger.error("Queue poller has failed! It will stop.", e);
-                    this.run = false;
-                    this.hasStopped = true;
-                    break;
-                }
+                jqmlogger.error("Queue poller has failed! It will stop.", e);
+                this.run = false;
+                this.hasStopped = true;
+                break;
             }
             catch (Exception e)
             {
@@ -538,7 +540,8 @@ class QueuePoller implements Runnable, QueuePollerMBean
     public boolean isActuallyPolling()
     {
         // 1000ms is a rough estimate of the time taken to do the actual poll. If it's more, there is a huge issue elsewhere.
-        return (Calendar.getInstance().getTimeInMillis() - this.lastLoop.getTimeInMillis()) <= pollingInterval + 1000;
+        return this.lastLoop != null
+                && (Calendar.getInstance().getTimeInMillis() - this.lastLoop.getTimeInMillis()) <= pollingInterval + 1000;
     }
 
     @Override

@@ -1,15 +1,14 @@
 package com.enioka.jqm.jdbc;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
 public class DbImplDb2 extends DbAdapter
 {
+    private String sequenceSqlAppHandle;
+
     @Override
     public void prepare(Properties p, Connection cnx)
     {
@@ -20,6 +19,10 @@ public class DbImplDb2 extends DbAdapter
                 "UPDATE __T__JOB_INSTANCE j1 SET NODE=?, STATUS='ATTRIBUTED', DATE_ATTRIBUTION=CURRENT_TIMESTAMP WHERE j1.STATUS='SUBMITTED' AND j1.ID IN "
                         + "(SELECT j2.ID FROM __T__JOB_INSTANCE j2 WHERE j2.STATUS='SUBMITTED' AND j2.QUEUE=? "
                         + "AND (j2.HIGHLANDER=0 OR (j2.HIGHLANDER=1 AND (SELECT COUNT(1) FROM __T__JOB_INSTANCE j3 WHERE j3.STATUS IN('ATTRIBUTED', 'RUNNING') AND j3.JOBDEF=j2.JOBDEF)=0 )) ORDER BY PRIORITY DESC, INTERNAL_POSITION FETCH FIRST ? ROWS ONLY)"));
+
+        sequenceSqlAppHandle = "SELECT APPLICATION_HANDLE, CLIENT_IPADDR, CLIENT_PORT_NUMBER, SESSION_AUTH_ID,"
+            + "CURRENT_SERVER, APPLICATION_NAME, CLIENT_PROTOCOL, CLIENT_PLATFORM, CLIENT_HOSTNAME, CONNECTION_START_TIME, APPLICATION_ID, EXECUTION_ID"
+            + " FROM TABLE(MON_GET_CONNECTION(cast(NULL as bigint), -2))";
     }
 
     @Override
@@ -68,7 +71,7 @@ public class DbImplDb2 extends DbAdapter
                     List<?> vv = (List<?>) o;
                     if (vv.size() == 0)
                     {
-                        throw new DatabaseException("Cannot do a query whith an empty list parameter");
+                        throw new DatabaseException("Cannot do a query with an empty list parameter");
                     }
 
                     newParams.addAll(vv);
@@ -124,4 +127,37 @@ public class DbImplDb2 extends DbAdapter
 
         return sql;
     }
+
+    @Override
+    public boolean testDbUnreachable(Exception e)
+    {
+        if (e.getCause() != null && e.getCause() instanceof SQLNonTransientException
+            && e.getCause().getMessage().equals("connection exception: closed"))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void simulateDisconnection(Connection cnx)
+    {
+        try (PreparedStatement s = cnx.prepareStatement(sequenceSqlAppHandle))
+        {
+            ResultSet rs = s.executeQuery();
+            if (!rs.next())
+            {
+                throw new NoResultException("The query returned zero rows when one was expected.");
+            }
+
+            String sql = "CALL SYSPROC.ADMIN_CMD('FORCE APPLICATION (" + rs.getInt(1) + ")')";
+            PreparedStatement ns = cnx.prepareStatement(sql);
+            ns.execute();
+        }
+        catch (SQLException e)
+        {
+            throw new DatabaseException(e);
+        }
+    }
+
 }

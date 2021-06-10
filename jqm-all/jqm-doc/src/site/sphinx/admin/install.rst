@@ -211,6 +211,18 @@ These commands can be used to setup a database::
 
 .. note:: before version 1.4, a startup script was needed to align sequences between tables on database startup. This is no longer needed and if present, this script should be removed.
 
+MariaDB
+------------------
+
+MariaDB 10.1+ is supported. Since MariaDB is a fork of MySQL, it works like MySQL aforementioned. No specific configuration is required in JQM: no options inside jqm.properties (or absent file).::
+
+    $ mysql -u root -p
+    mysql> create database jqm;
+    mysql> grant all privileges on jqm.* to jqm@'%' identified by 'jqm';
+    mysql> flush privileges;
+
+.. note:: MariaDB included in Debian and Ubuntu use a different charset encoding. See `Differences in MariaDB in Debian (and Ubuntu) <https://mariadb.com/kb/en/library/differences-in-mariadb-in-debian-and-ubuntu/>`_.
+
 HSQLDB
 ------------------
 

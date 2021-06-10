@@ -1,6 +1,5 @@
 package com.enioka.jqm.jdbc;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
@@ -506,7 +505,24 @@ public class Db
         }
         catch (SQLException e)
         {
-            DbHelper.closeQuietly(cnx); // May have been left open when the pool has given us a failed connection.
+            if (this.adapter.testDbUnreachable(e))
+            {
+                throw new DatabaseUnreachableException(e);
+            }
+            else
+            {
+                try
+                {
+                    DbHelper.closeQuietly(cnx); // May have been left open when the pool has given us a failed connection.
+                }
+                catch (Exception ee)
+                {
+                    if (this.adapter.testDbUnreachable(ee))
+                    {
+                        throw new DatabaseUnreachableException(ee);
+                    }
+                }
+            }
             throw new DatabaseException(e);
         }
     }

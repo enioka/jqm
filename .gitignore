@@ -1,3 +1,4 @@
+.idea
 .settings
 *.class
 target/
@@ -15,6 +16,7 @@ test.txt
 *.ear
 release.properties
 *Thumbs.db
+*.iml
 
 /jqm-all/jqm-engine/compile.sh
 /jqmProject/nbproject/private/

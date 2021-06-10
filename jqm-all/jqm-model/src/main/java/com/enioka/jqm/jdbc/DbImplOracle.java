@@ -3,6 +3,7 @@ package com.enioka.jqm.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class DbImplOracle extends DbAdapter
                     List<?> vv = (List<?>) o;
                     if (vv.size() == 0)
                     {
-                        throw new DatabaseException("Cannot do a query whith an empty list parameter");
+                        throw new DatabaseException("Cannot do a query with an empty list parameter");
                     }
 
                     newParams.addAll(vv);
@@ -127,4 +128,44 @@ public class DbImplOracle extends DbAdapter
     {
         return JobInstance.select(cnx, "ji_select_poll", queue.getId(), headSize);
     }
+
+    @Override
+    public boolean testDbUnreachable(Exception e)
+    {
+        if (e instanceof SQLException
+            && (e.getMessage().contains("Connection is closed")
+            || e.getMessage().contains("Closed Connection")))
+        {
+            return true;
+        }
+        if (e.getCause() != null
+            && (e.getCause().getMessage().contains("Connection is closed")
+            || e.getMessage().contains("Closed Connection")))
+        {
+            return true;
+        }
+        return super.testDbUnreachable(e);
+    }
+
+    @Override
+    public void simulateDisconnection(Connection cnx)
+    {
+        try (PreparedStatement s = cnx.prepareStatement("SELECT SID,SERIAL# FROM GV$SESSION WHERE USERNAME = 'JQM'"))
+        {
+            ResultSet rs = s.executeQuery();
+            if (!rs.next())
+            {
+                throw new NoResultException("The query returned zero rows when one was expected.");
+            }
+
+            String sql = "ALTER SYSTEM DISCONNECT SESSION '" + rs.getInt(1) + ","+ rs.getInt(2) + "' IMMEDIATE";
+            PreparedStatement ns = cnx.prepareStatement(sql);
+            ns.execute();
+        }
+        catch (SQLException e)
+        {
+            throw new DatabaseException(e);
+        }
+    }
+
 }

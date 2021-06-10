@@ -4,14 +4,22 @@ import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
+
 import com.enioka.jqm.model.JobInstance;
 import com.enioka.jqm.model.Queue;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * The interface to implement to create a new database adapter. Adapters contain all the database-specific stuff for running JQM on a
@@ -22,6 +30,7 @@ import com.enioka.jqm.model.Queue;
  */
 public abstract class DbAdapter
 {
+    public static Logger jqmlogger = LoggerFactory.getLogger(DbAdapter.class);
     protected String[] IDS = new String[] { "ID" };
 
     /**
@@ -157,4 +166,32 @@ public abstract class DbAdapter
     {
         return JobInstance.select(cnx, "ji_select_poll", queue.getId());
     }
+
+    /**
+     * Test the exception to determine whether the database is offline.
+     * Errors are specific to each type of database
+     *
+     * @param e exception to test
+     * @return true if the database is closed
+     */
+    public boolean testDbUnreachable(Exception e)
+    {
+        Throwable cause = e.getCause();
+        return (ExceptionUtils.indexOfType(e, SocketTimeoutException.class) != -1)
+            || (ExceptionUtils.indexOfType(e, SocketException.class) != -1)
+            || (ExceptionUtils.indexOfType(e, SocketTimeoutException.class) != -1)
+            || (cause instanceof SQLException && e.getMessage().equals("Failed to validate a newly established connection."));
+    }
+
+    /**
+     * Trigger a connection close from the DB.
+     * Used in tests to simulate a DB failure.
+     *
+     * @param cnx
+     *                an open ready to use connection to the database.
+     */
+    public void simulateDisconnection(Connection cnx)
+    {
+    }
+
 }

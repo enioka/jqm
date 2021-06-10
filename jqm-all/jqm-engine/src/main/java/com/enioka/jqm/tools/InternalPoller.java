@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.naming.spi.NamingManager;
 
+import com.enioka.jqm.jdbc.DatabaseUnreachableException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -175,20 +176,17 @@ class InternalPoller implements Runnable
 
                 // All engine pollings done!
             }
+            catch (DatabaseUnreachableException e)
+            {
+                jqmlogger.error("connection to database lost - stopping internal poller");
+                jqmlogger.trace("connection error was:", e.getCause());
+                run = false;
+                this.engine.startDbRestarter();
+                break;
+            }
             catch (RuntimeException e)
             {
-                if (Helpers.testDbFailure(e))
-                {
-                    jqmlogger.error("connection to database lost - stopping internal poller");
-                    jqmlogger.trace("connection error was:", e.getCause());
-                    run = false;
-                    this.engine.startDbRestarter();
-                    break;
-                }
-                else
-                {
-                    throw e;
-                }
+                throw e;
             }
         }
 

@@ -3,12 +3,13 @@ package com.enioka.jqm.jdbc;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.SQLNonTransientConnectionException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+
+import org.apache.commons.lang.exception.ExceptionUtils;
 
 import com.enioka.jqm.model.JobInstance;
 import com.enioka.jqm.model.Queue;
@@ -35,22 +36,22 @@ public class DbImplMySql8 extends DbAdapter
             return "";
         }
         return sql.replace("MEMORY TABLE", "TABLE").replace("ID INTEGER NOT NULL", "ID INTEGER NOT NULL AUTO_INCREMENT")
-                .replace("JQM_PK.nextval", "NULL").replace(" DOUBLE", " DOUBLE PRECISION")
-                .replace("UNIX_MILLIS()", "ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)").replace("IN(UNNEST(?))", "IN(?)")
-                .replace("CURRENT_TIMESTAMP - 1 MINUTE", "(UNIX_TIMESTAMP() - 60)")
-                .replace("CURRENT_TIMESTAMP - ? SECOND", "(NOW() - INTERVAL ? SECOND)").replace("FROM (VALUES(0))", "FROM DUAL")
-                .replace("DNS||':'||PORT", "CONCAT(DNS, ':', PORT)").replace(" TIMESTAMP ", " TIMESTAMP(3) ")
-                .replace("CURRENT_TIMESTAMP", "FFFFFFFFFFFFFFFFF@@@@").replace("FFFFFFFFFFFFFFFFF@@@@", "CURRENT_TIMESTAMP(3)")
-                .replace("TIMESTAMP(3) NOT NULL", "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)").replace("__T__", this.tablePrefix);
+            .replace("JQM_PK.nextval", "NULL").replace(" DOUBLE", " DOUBLE PRECISION")
+            .replace("UNIX_MILLIS()", "ROUND(UNIX_TIMESTAMP(CURTIME(4)) * 1000)").replace("IN(UNNEST(?))", "IN(?)")
+            .replace("CURRENT_TIMESTAMP - 1 MINUTE", "(UNIX_TIMESTAMP() - 60)")
+            .replace("CURRENT_TIMESTAMP - ? SECOND", "(NOW() - INTERVAL ? SECOND)").replace("FROM (VALUES(0))", "FROM DUAL")
+            .replace("DNS||':'||PORT", "CONCAT(DNS, ':', PORT)").replace(" TIMESTAMP ", " TIMESTAMP(3) ")
+            .replace("CURRENT_TIMESTAMP", "FFFFFFFFFFFFFFFFF@@@@").replace("FFFFFFFFFFFFFFFFF@@@@", "CURRENT_TIMESTAMP(3)")
+            .replace("TIMESTAMP(3) NOT NULL", "TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3)").replace("__T__", this.tablePrefix);
     }
 
     @Override
     public boolean compatibleWith(DatabaseMetaData product) throws SQLException
     {
         return (product.getDatabaseProductName().contains("MySQL") && (product.getDatabaseMajorVersion() >= 8))
-                || (product.getDatabaseProductName().contains("MariaDB")
-                        && ((product.getDatabaseMajorVersion() == 10 && product.getDatabaseMinorVersion() >= 3)
-                                || (product.getDatabaseMajorVersion() > 10)));
+            || (product.getDatabaseProductName().contains("MariaDB")
+            && ((product.getDatabaseMajorVersion() == 10 && product.getDatabaseMinorVersion() >= 3)
+            || (product.getDatabaseMajorVersion() > 10)));
     }
 
     @Override
@@ -78,7 +79,7 @@ public class DbImplMySql8 extends DbAdapter
                     List<?> vv = (List<?>) o;
                     if (vv.size() == 0)
                     {
-                        throw new DatabaseException("Cannot do a query whith an empty list parameter");
+                        throw new DatabaseException("Cannot do a query with an empty list parameter");
                     }
 
                     newParams.addAll(vv);
@@ -94,8 +95,7 @@ public class DbImplMySql8 extends DbAdapter
                         sb.append("?,");
                     }
                     q.sqlText = q.sqlText.replaceFirst("IN\\(\\?\\)", "IN(" + sb.substring(0, sb.length() - 1) + ")");
-                }
-                else
+                } else
                 {
                     newParams.add(o);
                 }
@@ -130,5 +130,38 @@ public class DbImplMySql8 extends DbAdapter
     public List<JobInstance> poll(DbConn cnx, Queue queue, int headSize)
     {
         return JobInstance.select(cnx, "ji_select_poll", queue.getId(), headSize);
+    }
+
+    @Override
+    public boolean testDbUnreachable(Exception e)
+    {
+        if (ExceptionUtils.indexOfType(e, SQLNonTransientConnectionException.class) != -1)
+        {
+            return true;
+        }
+        Throwable cause = e.getCause();
+        if (cause != null
+            && (cause.getMessage().contains("This connection has been closed")
+            || cause.getMessage().contains("Communications link failure")
+            || cause.getMessage().contains("Connection is closed")))
+        {
+            return true;
+        }
+
+        return super.testDbUnreachable(e);
+    }
+
+    @Override
+    public void simulateDisconnection(Connection cnx)
+    {
+        try
+        {
+            PreparedStatement s = cnx.prepareStatement("KILL USER jqm");
+            s.execute();
+        }
+        catch (SQLException e)
+        {
+            throw new DatabaseException(e);
+        }
     }
 }
