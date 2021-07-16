@@ -1,5 +1,5 @@
 
-import { Container, Grid, CircularProgress, IconButton, Tooltip, Typography } from "@material-ui/core";
+import { Container, Grid, CircularProgress, IconButton, Tooltip } from "@material-ui/core";
 import MUIDataTable, { MUIDataTableColumnDef } from "mui-datatables";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import HelpIcon from "@material-ui/icons/Help";
@@ -9,6 +9,7 @@ import { useRoleAPI } from "./RoleAPI";
 import { renderActionsCell, renderInputCell } from "../TableCells";
 import { EditPermissionsDialog } from "./EditPermissionsDialog";
 import { CreateRoleDialog } from "./CreateRoleDialog";
+import { renderDialogCell } from "../TableCells/renderDialogCell";
 
 
 const RolesPage: React.FC = () => {
@@ -113,30 +114,13 @@ const RolesPage: React.FC = () => {
                 filter: false,
                 sort: false,
                 customBodyRender:
-                    (value: any, tableMeta: any) =>
-
-                        (editingRowId === tableMeta.rowIndex) ?
-                            <Tooltip title={(editingRowId === tableMeta.rowIndex) ? "Click to edit permissions" : ""}>
-                                <Typography
-                                    onClick={() => {
-                                        const [roleId] = tableMeta.rowData;
-                                        setEditPermissionsRoleId(roleId);
-                                    }}
-                                    style={{
-                                        fontSize: "0.875rem", paddingTop: "13px", cursor: "pointer",
-                                        paddingBottom: "6px"
-                                        , borderBottom: "1px solid black"
-                                    }}
-                                >
-                                    {permissions!.join(", ")}
-                                </Typography>
-                            </Tooltip>
-                            :
-                            <Typography
-                                style={{ fontSize: "0.875rem", paddingTop: "5px" }}
-                            >
-                                {(value as string[]).join(", ")}
-                            </Typography>
+                    renderDialogCell(
+                        editingRowId,
+                        "Click to edit permissions",
+                        permissions,
+                        (value: any[]) => (value as string[]).join(", "),
+                        setEditPermissionsRoleId
+                    )
             }
         },
         {

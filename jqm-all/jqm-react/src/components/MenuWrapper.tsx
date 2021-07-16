@@ -214,7 +214,12 @@ export default function MenuWrapper(props: any) {
                         </ListItemIcon>
                         <ListItemText primary={"Cluster-wide params"} />
                     </ListItem>
-                    <ListItem button key={"jobDefinitions"} disabled>
+                    <ListItem
+                        button
+                        key={"jobDefinitions"}
+                        component={NavLink}
+                        to="/job-definitions"
+                    >
                         <ListItemIcon>
                             <AssignmentIcon />
                         </ListItemIcon>

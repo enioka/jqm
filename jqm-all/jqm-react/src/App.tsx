@@ -17,6 +17,7 @@ import { NodesPage } from "./components/Nodes/NodesPage";
 import MappingsPage from "./components/Mappings/MappingsPage";
 import RolesPage from "./components/Roles/RolesPage";
 import ClusterwideParametersPage from "./components/ClusterwideParameters/ClusterwideParametersPage";
+import { JobDefinitionsPage } from "./components/JobDefinitions/JobDefinitionsPage";
 
 declare module "@material-ui/core/styles/overrides" {
     interface ComponentNameToClassKey {
@@ -89,6 +90,11 @@ function App() {
                                     exact={true}
                                 >
                                     <ClusterwideParametersPage />
+                                </Route>
+                                <Route
+                                    path="/job-definitions"
+                                    exact={true}>
+                                    <JobDefinitionsPage />
                                 </Route>
                                 <Route path="/users" exact={true}>
                                     <UsersPage />

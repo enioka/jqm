@@ -94,7 +94,6 @@ const MappingsPage: React.FC = () => {
 
     const handleOnEdit = useCallback(
         (tableMeta) => {
-            console.log(tableMeta)
             setNodeId(tableMeta.rowData[1]);
             setQueueId(tableMeta.rowData[2]);
             setEnabled(tableMeta.rowData[5]);
